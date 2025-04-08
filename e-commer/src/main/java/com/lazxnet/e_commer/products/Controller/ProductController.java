@@ -59,5 +59,17 @@ public class ProductController {
         ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
         return ResponseEntity.ok(updatedProduct);
     }
-    
+
+
+    //Filtrar productos por categoria
+    @Operation(
+            summary = "Filtrar productos por categoría",
+            description = "Endpoint para obtener productos asociados a una categoría específica"
+    )
+    @GetMapping("/by-category/{categoryId}")
+    public ResponseEntity<List<ProductResponse>> getProductsByCategory(
+            @PathVariable UUID categoryId) {
+        List<ProductResponse> products = productService.getProductsByCategoryId(categoryId);
+        return ResponseEntity.ok(products);
+    }
 }

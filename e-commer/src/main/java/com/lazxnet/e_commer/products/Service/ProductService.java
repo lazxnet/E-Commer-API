@@ -106,4 +106,17 @@ public class ProductService {
         }
         return product;
     }
+
+    //Obtener productos por categoria
+    public List<ProductResponse> getProductsByCategoryId(UUID categoryId){
+        List<Product> products = productRepository.findByCategory_CategoryId(categoryId);
+        List<ProductResponse> responses = new ArrayList<>();
+
+        for(Product product : products){
+            ProductResponse response = convertToResponse(product);
+            responses.add(response);
+        }
+
+        return responses;
+    }
 }
