@@ -2,14 +2,16 @@ package com.lazxnet.e_commer.products.Controller;
 
 import com.lazxnet.e_commer.products.Entity.Product;
 import com.lazxnet.e_commer.products.Service.ProductService;
+import com.lazxnet.e_commer.products.dto.ProductRequest;
+import com.lazxnet.e_commer.products.dto.ProductResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "Products")
 
@@ -30,9 +32,32 @@ public class ProductController {
             )
     )
     @PostMapping("/createproduct")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        Product savedProduct = productService.createProduct(product);
+    public ResponseEntity<Product> createProduct(@RequestBody ProductRequest productRequest) {
+        Product savedProduct = productService.createProduct(productRequest);
         return ResponseEntity.ok(savedProduct);
+    }
+
+    //Obtener todos los Productos
+    @Operation(
+            summary = "Obtener todos los productos",
+            description = "Endpoint para obtener todos los productos"
+    )
+    @GetMapping("/showallproducts")
+    public List<ProductResponse> getAllProducts(){
+        return productService.getAllProducts();
+    }
+
+    //Editar un producto por id
+    @Operation(
+            summary = "Actualizar producto por ID",
+            description = "Endpoint para editar un producto"
+    )
+    @PutMapping("/update_product/{id}")
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable UUID id,
+            @RequestBody ProductRequest productRequest) {
+        ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
+        return ResponseEntity.ok(updatedProduct);
     }
     
 }
