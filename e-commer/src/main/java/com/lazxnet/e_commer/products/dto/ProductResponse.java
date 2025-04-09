@@ -12,6 +12,7 @@ import java.util.UUID;
 public class ProductResponse {
 
     private UUID productId;
+    private String imageBase64;
     private String name;
     private String description;
     private BigDecimal price;

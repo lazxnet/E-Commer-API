@@ -34,6 +34,7 @@ public class ProductService {
 
         //TODO: Mapear ProductRequest a Product
         Product product = new Product();
+        product.setImageBase64(productRequest.getImageBase64());
         product.setName(productRequest.getName());
         product.setDescription(productRequest.getDescription());
         product.setPrice(productRequest.getPrice());
@@ -50,6 +51,7 @@ public class ProductService {
         for(Product product : products){
             ProductResponse response = new ProductResponse();
             response.setProductId(product.getProductId());
+            response.setImageBase64(product.getImageBase64());
             response.setName(product.getName());
             response.setDescription(product.getDescription());
             response.setPrice(product.getPrice());
@@ -90,6 +92,7 @@ public class ProductService {
     private ProductResponse convertToResponse(Product product){
         ProductResponse response = new ProductResponse();
         response.setProductId(product.getProductId());
+        response.setImageBase64(product.getImageBase64());
         response.setName(product.getName());
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice());

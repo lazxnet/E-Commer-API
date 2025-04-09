@@ -25,6 +25,10 @@ public class Product {
     @Column(name = "product_id")
     private UUID productId;
 
+    @Lob
+    @Column(name = "image_base64", columnDefinition = "TEXT")
+    private String imageBase64;
+
     @Column(name = "name", nullable = false)
     private String name;
 

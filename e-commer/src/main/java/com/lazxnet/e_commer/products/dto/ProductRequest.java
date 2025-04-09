@@ -10,6 +10,7 @@ import java.util.UUID;
 @Setter
 public class ProductRequest {
     private String name;
+    private String imageBase64;
     private String description;
     private BigDecimal price;
     private UUID categoryId;
