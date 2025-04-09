@@ -2,6 +2,8 @@ package com.lazxnet.e_commer.products.Service;
 
 import com.lazxnet.e_commer.categories.Entity.Category;
 import com.lazxnet.e_commer.categories.Repository.CategoryRepository;
+import com.lazxnet.e_commer.products.Repository.ImageProductRepository;
+import com.lazxnet.e_commer.products.Entity.ImageProduct;
 import com.lazxnet.e_commer.products.Entity.Product;
 import com.lazxnet.e_commer.products.Repository.ProductRepository;
 import com.lazxnet.e_commer.products.dto.ProductRequest;
@@ -24,6 +26,9 @@ public class ProductService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private ImageProductRepository imageProductRepository;
+
     //Crear productos
     public Product createProduct(ProductRequest productRequest){
 
@@ -32,9 +37,13 @@ public class ProductService {
                 .getCategoryId())
                 .orElseThrow(()-> new RuntimeException("Categoria no encontrada"));
 
+        ImageProduct imageProduct = new ImageProduct();
+        imageProduct.setImageBase64(productRequest.getImageBase64());
+        imageProduct = imageProductRepository.save(imageProduct);
+
         //TODO: Mapear ProductRequest a Product
         Product product = new Product();
-        product.setImageBase64(productRequest.getImageBase64());
+        product.setImageProduct(imageProduct);
         product.setName(productRequest.getName());
         product.setDescription(productRequest.getDescription());
         product.setPrice(productRequest.getPrice());
@@ -51,7 +60,7 @@ public class ProductService {
         for(Product product : products){
             ProductResponse response = new ProductResponse();
             response.setProductId(product.getProductId());
-            response.setImageBase64(product.getImageBase64());
+            response.setImageBase64(product.getImageProduct().getImageBase64());
             response.setName(product.getName());
             response.setDescription(product.getDescription());
             response.setPrice(product.getPrice());
@@ -69,6 +78,12 @@ public class ProductService {
                         HttpStatus.NOT_FOUND,
                         "El producto con ID " + productId + " no existe"
                 ));
+
+        if (productRequest.getImageBase64() != null){
+            ImageProduct imageProduct = existingProduct.getImageProduct();
+            imageProduct.setImageBase64(productRequest.getImageBase64());
+            imageProductRepository.save(imageProduct);
+        }
 
         //TODO: Buscar la nueva categoria(Si se decea actualizarla)
         Category category = categoryRepository.findById(productRequest.getCategoryId())
@@ -92,7 +107,7 @@ public class ProductService {
     private ProductResponse convertToResponse(Product product){
         ProductResponse response = new ProductResponse();
         response.setProductId(product.getProductId());
-        response.setImageBase64(product.getImageBase64());
+        response.setImageBase64(product.getImageProduct().getImageBase64());
         response.setName(product.getName());
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice());

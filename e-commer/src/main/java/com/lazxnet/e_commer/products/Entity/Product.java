@@ -25,9 +25,9 @@ public class Product {
     @Column(name = "product_id")
     private UUID productId;
 
-    @Lob
-    @Column(name = "image_base64", columnDefinition = "TEXT")
-    private String imageBase64;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_product_id")
+    private ImageProduct imageProduct;
 
     @Column(name = "name", nullable = false)
     private String name;
