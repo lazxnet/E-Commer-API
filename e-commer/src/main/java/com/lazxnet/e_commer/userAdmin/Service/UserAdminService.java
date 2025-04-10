@@ -63,7 +63,7 @@ public class UserAdminService {
     }
 
     //Login AdminUser
-    public boolean authenticateAdminUser(String email, String password){
+    public UserAdmin authenticateAdminUser(String email, String password){
         UserAdmin userAdmin = userAdminRepository.findByEmail(email)
                 .orElseThrow(()-> new RuntimeException("Administrador no encontrado"));
 
@@ -71,6 +71,6 @@ public class UserAdminService {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
-        return true;
+        return userAdmin;
     }
 }

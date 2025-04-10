@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -59,16 +60,17 @@ public class UserAdminController {
     @PostMapping("/loginAdminUser")
     public ResponseEntity<?> loginUserAdmin(@RequestBody LoginUserAdminRequest loginUserAdminRequest){
         try {
-            boolean isAuthenticated = userAdminService.authenticateAdminUser(
+            UserAdmin authenticatedUser  = userAdminService.authenticateAdminUser(
                     loginUserAdminRequest.getEmail(),
                     loginUserAdminRequest.getPassword()
             );
 
-            if(isAuthenticated){
-                return ResponseEntity.ok().body("Login exitoso");
-            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Login exitoso");
+            response.put("userAdminId", authenticatedUser.getUserAdminId());
 
-            return ResponseEntity.badRequest().body("Error al autenticar el usuario");
+            return ResponseEntity.ok(response);
+            
         } catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
