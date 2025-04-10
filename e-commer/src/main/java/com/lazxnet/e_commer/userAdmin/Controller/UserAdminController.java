@@ -8,10 +8,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.UUID;
 
 @Tag(name = "UserAdmin")
 
@@ -30,5 +30,21 @@ public class UserAdminController {
     public ResponseEntity<UserAdmin> createAdminUser(@RequestBody CreateUserAdminRequest request){
         UserAdmin newUser = userAdminService.createAdminUser(request);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Eliminar usuario administrador por ID",
+            description = "Endpoint para eliminar un Usuario Administrador")
+    @DeleteMapping("/deleteAdminUser/{userAdminId}")
+    public ResponseEntity<?> deleteAdminUser(@PathVariable UUID userAdminId){
+
+        try{
+            userAdminService.deleteAdminUser(userAdminId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e){
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }

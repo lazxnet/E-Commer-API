@@ -3,10 +3,14 @@ package com.lazxnet.e_commer.userAdmin.Service;
 import com.lazxnet.e_commer.userAdmin.Entity.UserAdmin;
 import com.lazxnet.e_commer.userAdmin.Repository.UserAdminRepository;
 import com.lazxnet.e_commer.userAdmin.dto.CreateUserAdminRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
+@Slf4j
 @Service
 public class UserAdminService {
 
@@ -41,5 +45,17 @@ public class UserAdminService {
         );
 
         return userAdminRepository.save(user);
+    }
+
+    public void deleteAdminUser(UUID userAdminId){
+
+        UserAdmin userAdmin = userAdminRepository.findById(userAdminId)
+                .orElseThrow(()->{
+                    log.error("Intentando eliminar el admin no encontrado con el id " + userAdminId);
+                    return new RuntimeException("El admin no existe");
+                });
+
+        userAdminRepository.deleteById(userAdminId);
+        log.info("Admin eliminado exitosamente: {}", userAdmin.getEmail());
     }
 }
