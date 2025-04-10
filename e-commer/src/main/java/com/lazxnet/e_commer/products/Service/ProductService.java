@@ -8,6 +8,8 @@ import com.lazxnet.e_commer.products.Entity.Product;
 import com.lazxnet.e_commer.products.Repository.ProductRepository;
 import com.lazxnet.e_commer.products.dto.ProductRequest;
 import com.lazxnet.e_commer.products.dto.ProductResponse;
+import com.lazxnet.e_commer.userAdmin.Entity.UserAdmin;
+import com.lazxnet.e_commer.userAdmin.Repository.UserAdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,19 +31,26 @@ public class ProductService {
     @Autowired
     private ImageProductRepository imageProductRepository;
 
-    //Crear productos
-    public Product createProduct(ProductRequest productRequest){
+    @Autowired
+    private UserAdminRepository userAdminRepository;
 
-        //TODO: Buscar categoria por ID
+    //Crear productos
+    public Product createProduct(ProductRequest productRequest, UUID userAdminId) {
+
+        //Validar categoria
         Category category = categoryRepository.findById(productRequest
                 .getCategoryId())
                 .orElseThrow(()-> new RuntimeException("Categoria no encontrada"));
 
+        //Validar userAdminId
+        UserAdmin userAdmin = userAdminRepository.findById(userAdminId)
+                .orElseThrow(()-> new RuntimeException("Administrador no encontrado"));
+
+        //Crear imagen y producto
         ImageProduct imageProduct = new ImageProduct();
         imageProduct.setImageBase64(productRequest.getImageBase64());
         imageProduct = imageProductRepository.save(imageProduct);
 
-        //TODO: Mapear ProductRequest a Product
         Product product = new Product();
         product.setImageProduct(imageProduct);
         product.setName(productRequest.getName());
@@ -49,6 +58,7 @@ public class ProductService {
         product.setPrice(productRequest.getPrice());
         product.setQuantity(productRequest.getQuantity());
         product.setCategory(category);
+        product.setUserAdmin(userAdmin);
 
         return productRepository.save(product);
     }
