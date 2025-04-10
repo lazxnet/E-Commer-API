@@ -27,6 +27,8 @@ public class UserAdminService {
         this.passwordEncoder = passwordEncoder;
     }
 
+
+    //Crear un nueno AdminUser
     public UserAdmin createAdminUser(CreateUserAdminRequest request){
         //Verificar si el email ya existe
         if (userAdminRepository.findByEmail(request.getEmail()).isPresent()){
@@ -47,6 +49,7 @@ public class UserAdminService {
         return userAdminRepository.save(user);
     }
 
+    //Eliminar AdminUser por id
     public void deleteAdminUser(UUID userAdminId){
 
         UserAdmin userAdmin = userAdminRepository.findById(userAdminId)
@@ -57,5 +60,17 @@ public class UserAdminService {
 
         userAdminRepository.deleteById(userAdminId);
         log.info("Admin eliminado exitosamente: {}", userAdmin.getEmail());
+    }
+
+    //Login AdminUser
+    public boolean authenticateAdminUser(String email, String password){
+        UserAdmin userAdmin = userAdminRepository.findByEmail(email)
+                .orElseThrow(()-> new RuntimeException("Administrador no encontrado"));
+
+        if (!passwordEncoder.matches(password, userAdmin.getPassword())){
+            throw new RuntimeException("Contraseña incorrecta");
+        }
+
+        return true;
     }
 }
