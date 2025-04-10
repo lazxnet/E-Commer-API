@@ -55,11 +55,12 @@ public class ProductController {
             summary = "Actualizar producto por ID",
             description = "Endpoint para editar un producto"
     )
-    @PutMapping("/update_product/{id}")
+    @PutMapping("/update_product/{productId}")
     public ResponseEntity<ProductResponse> updateProduct(
-            @PathVariable UUID id,
-            @RequestBody ProductRequest productRequest) {
-        ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
+            @PathVariable UUID productId,
+            @RequestBody ProductRequest productRequest,
+            @RequestHeader("UserAdminId") UUID userAdminId) {
+        ProductResponse updatedProduct = productService.updateProduct(productId, productRequest, userAdminId);
         return ResponseEntity.ok(updatedProduct);
     }
 

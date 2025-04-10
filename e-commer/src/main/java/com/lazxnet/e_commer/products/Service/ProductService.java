@@ -82,8 +82,16 @@ public class ProductService {
     }
 
     //Editar un producto
-    public ProductResponse updateProduct(UUID productId, ProductRequest productRequest){
-        //TODO: Buscar el producto existente
+    public ProductResponse updateProduct(UUID productId, ProductRequest productRequest, UUID userAdminId) {
+
+        //Validar que si administrador existente
+        UserAdmin userAdmin = userAdminRepository.findById(userAdminId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Administrador no encontrado"
+                ));
+
+        //Validar el producto existente
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(()-> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
