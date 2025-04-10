@@ -7,6 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -37,6 +38,10 @@ public class Product {
 
     @Column(name = "price", precision = 10, scale = 2)
     private BigDecimal price;
+
+    @Column(name = "quantity", nullable = false)
+    @Min(value = 1, message = "La cantidad minima es 1")
+    private Integer quantity;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)

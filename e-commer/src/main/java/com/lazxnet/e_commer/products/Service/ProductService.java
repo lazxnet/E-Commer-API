@@ -47,6 +47,7 @@ public class ProductService {
         product.setName(productRequest.getName());
         product.setDescription(productRequest.getDescription());
         product.setPrice(productRequest.getPrice());
+        product.setQuantity(productRequest.getQuantity());
         product.setCategory(category);
 
         return productRepository.save(product);
@@ -78,6 +79,10 @@ public class ProductService {
                         HttpStatus.NOT_FOUND,
                         "El producto con ID " + productId + " no existe"
                 ));
+
+        if (productRequest.getQuantity() != null){
+            existingProduct.setQuantity(productRequest.getQuantity());
+        }
 
         if (productRequest.getImageBase64() != null){
             ImageProduct imageProduct = existingProduct.getImageProduct();
@@ -111,6 +116,7 @@ public class ProductService {
         response.setName(product.getName());
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice());
+        response.setQuantity(product.getQuantity());
         response.setCategory(product.getCategory());
         return response;
     }

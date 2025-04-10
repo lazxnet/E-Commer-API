@@ -13,5 +13,6 @@ public class ProductRequest {
     private String imageBase64;
     private String description;
     private BigDecimal price;
+    private Integer quantity;
     private UUID categoryId;
 }
