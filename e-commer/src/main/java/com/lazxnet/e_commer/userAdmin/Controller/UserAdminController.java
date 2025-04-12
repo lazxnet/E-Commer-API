@@ -44,7 +44,9 @@ public class UserAdminController {
 
         try{
             userAdminService.deleteAdminUser(userAdminId);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity
+                    .noContent()
+                    .build();
         } catch (Exception e){
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
