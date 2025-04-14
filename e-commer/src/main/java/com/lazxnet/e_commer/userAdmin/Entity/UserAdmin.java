@@ -18,6 +18,7 @@ public class UserAdmin {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Type(type = "uuid-char")
+    @Column(name = "user_admin_id")
     private UUID userAdminId;
 
     @Email

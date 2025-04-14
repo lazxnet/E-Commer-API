@@ -1,6 +1,7 @@
 package com.lazxnet.e_commer.products.Entity;
 
 import com.lazxnet.e_commer.categories.Entity.Category;
+import com.lazxnet.e_commer.userAdmin.Entity.UserAdmin;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
@@ -46,4 +47,10 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_admin_id",
+            referencedColumnName = "user_admin_id",
+            nullable = false)
+    private UserAdmin userAdmin;
 }
