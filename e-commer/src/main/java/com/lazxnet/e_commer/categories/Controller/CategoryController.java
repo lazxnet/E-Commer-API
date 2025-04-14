@@ -1,5 +1,7 @@
 package com.lazxnet.e_commer.categories.Controller;
 
+import com.lazxnet.e_commer.categories.DTO.CategoryRequestDTO;
+import com.lazxnet.e_commer.categories.DTO.CategoryResponseDTO;
 import com.lazxnet.e_commer.categories.Entity.Category;
 import com.lazxnet.e_commer.categories.Service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,9 +32,16 @@ public class CategoryController {
             )
     )
     @PostMapping("/createcategory")
-    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
-        Category saveCategory = categoryService.createCategory(category);
-        return ResponseEntity.ok(saveCategory);
+    public ResponseEntity<CategoryResponseDTO> createCategory(
+            @RequestBody CategoryRequestDTO categoryRequest,
+            @RequestParam("UserAdminId") UUID userAdminId
+    ) {
+        Category category = new Category();
+        category.setName(categoryRequest.getName());
+        category.setDescription(categoryRequest.getDescription());
+
+        CategoryResponseDTO responseDTO = categoryService.createCategory(category, userAdminId);
+        return  ResponseEntity.ok(responseDTO);
     }
 
     //Obtener todas las categorias
