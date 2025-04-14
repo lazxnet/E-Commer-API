@@ -59,8 +59,16 @@ public class CategoryService {
     }
 
     //Borrar categoria por id
-    public Category deleteCategoryById(UUID id) {
-        Category category = categoryRepository.findById(id).orElse(null);
+    public Category deleteCategoryById(UUID id, UUID userAdminId) {
+
+        if (!userAdminRepository.existsById(userAdminId)) {
+            throw new RuntimeException("UserAdmin no encontrado");
+        }
+
+        Category category = categoryRepository
+                .findById(id)
+                .orElseThrow(()-> new RuntimeException("Categoria no encontrada"));
+
         categoryRepository.delete(category);
         return category;
     }

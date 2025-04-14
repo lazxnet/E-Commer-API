@@ -60,9 +60,13 @@ public class CategoryController {
             description = "Endpoint para eliminar una categoria utilizando su ID"
     )
     @DeleteMapping("/delete_category/{id}")
-    public ResponseEntity<Category> deleteCategory(@PathVariable UUID id) {
-        Category deletedCategory = categoryService.deleteCategoryById(id);
-        return ResponseEntity.ok(deletedCategory);
+    public ResponseEntity<String> deleteCategory(
+            @PathVariable UUID id,
+            @RequestParam("UserAdminId") UUID userAdminId
+    ) {
+
+        categoryService.deleteCategoryById(id, userAdminId);
+        return ResponseEntity.ok("Categoria eliminada correctamente");
     }
 
 }
