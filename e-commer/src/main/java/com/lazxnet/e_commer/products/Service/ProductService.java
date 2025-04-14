@@ -8,6 +8,7 @@ import com.lazxnet.e_commer.products.Entity.Product;
 import com.lazxnet.e_commer.products.Repository.ProductRepository;
 import com.lazxnet.e_commer.products.dto.ProductRequest;
 import com.lazxnet.e_commer.products.dto.ProductResponse;
+import com.lazxnet.e_commer.products.dto.UserAdminResponse;
 import com.lazxnet.e_commer.userAdmin.Entity.UserAdmin;
 import com.lazxnet.e_commer.userAdmin.Repository.UserAdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,6 +130,12 @@ public class ProductService {
         response.setPrice(product.getPrice());
         response.setQuantity(product.getQuantity());
         response.setCategory(product.getCategory());
+
+        UserAdminResponse userAdminResponse = new UserAdminResponse();
+        userAdminResponse.setUserAdminId(product.getUserAdmin().getUserAdminId());
+        userAdminResponse.setEmail(product.getUserAdmin().getEmail());
+        userAdminResponse.setFullName(product.getUserAdmin().getFullName());
+        response.setUserAdmin(userAdminResponse);
         return response;
     }
 
