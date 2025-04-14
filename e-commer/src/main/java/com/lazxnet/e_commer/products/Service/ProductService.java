@@ -68,15 +68,8 @@ public class ProductService {
         List<Product> products = productRepository.findAll();
         List<ProductResponse> responses = new ArrayList<>();
 
-        for(Product product : products){
-            ProductResponse response = new ProductResponse();
-            response.setProductId(product.getProductId());
-            response.setImageBase64(product.getImageProduct().getImageBase64());
-            response.setName(product.getName());
-            response.setDescription(product.getDescription());
-            response.setPrice(product.getPrice());
-            response.setCategory(product.getCategory());
-            responses.add(response);
+        for (Product product : products) {
+            responses.add(convertToResponse(product));
         }
         return responses;
     }
