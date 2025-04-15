@@ -93,6 +93,8 @@ public class ProductService {
                         "El producto con ID " + productId + " no existe"
                 ));
 
+        existingProduct.setUserAdmin(userAdmin);
+
         if (productRequest.getQuantity() != null){
             existingProduct.setQuantity(productRequest.getQuantity());
         }
