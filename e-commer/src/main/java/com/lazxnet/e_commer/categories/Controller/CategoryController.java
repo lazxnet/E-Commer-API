@@ -1,5 +1,7 @@
 package com.lazxnet.e_commer.categories.Controller;
 
+import com.lazxnet.e_commer.categories.DTO.CategoryRequestDTO;
+import com.lazxnet.e_commer.categories.DTO.CategoryResponseDTO;
 import com.lazxnet.e_commer.categories.Entity.Category;
 import com.lazxnet.e_commer.categories.Service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,9 +32,16 @@ public class CategoryController {
             )
     )
     @PostMapping("/createcategory")
-    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
-        Category saveCategory = categoryService.createCategory(category);
-        return ResponseEntity.ok(saveCategory);
+    public ResponseEntity<CategoryResponseDTO> createCategory(
+            @RequestBody CategoryRequestDTO categoryRequest,
+            @RequestParam("UserAdminId") UUID userAdminId
+    ) {
+        Category category = new Category();
+        category.setName(categoryRequest.getName());
+        category.setDescription(categoryRequest.getDescription());
+
+        CategoryResponseDTO responseDTO = categoryService.createCategory(category, userAdminId);
+        return  ResponseEntity.ok(responseDTO);
     }
 
     //Obtener todas las categorias
@@ -41,7 +50,7 @@ public class CategoryController {
             description = "Endpoint para obtener todas las categorias"
     )
     @GetMapping("/showall_categories")
-    public List<Category> getAllCategories() {
+    public List<CategoryResponseDTO> getAllCategories() {
         return categoryService.getAllCategories();
     }
 
@@ -51,9 +60,13 @@ public class CategoryController {
             description = "Endpoint para eliminar una categoria utilizando su ID"
     )
     @DeleteMapping("/delete_category/{id}")
-    public ResponseEntity<Category> deleteCategory(@PathVariable UUID id) {
-        Category deletedCategory = categoryService.deleteCategoryById(id);
-        return ResponseEntity.ok(deletedCategory);
+    public ResponseEntity<String> deleteCategory(
+            @PathVariable UUID id,
+            @RequestParam("UserAdminId") UUID userAdminId
+    ) {
+
+        categoryService.deleteCategoryById(id, userAdminId);
+        return ResponseEntity.ok("Categoria eliminada correctamente");
     }
 
 }
