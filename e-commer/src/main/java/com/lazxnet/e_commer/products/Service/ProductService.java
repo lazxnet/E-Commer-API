@@ -6,6 +6,7 @@ import com.lazxnet.e_commer.products.Repository.ImageProductRepository;
 import com.lazxnet.e_commer.products.Entity.ImageProduct;
 import com.lazxnet.e_commer.products.Entity.Product;
 import com.lazxnet.e_commer.products.Repository.ProductRepository;
+import com.lazxnet.e_commer.products.dto.CategoryResponseForProduct;
 import com.lazxnet.e_commer.products.dto.ProductRequest;
 import com.lazxnet.e_commer.products.dto.ProductResponse;
 import com.lazxnet.e_commer.products.dto.UserAdminResponse;
@@ -121,7 +122,7 @@ public class ProductService {
     }
 
     //TODO: Metodo para convertir Product a ProductResponse
-    private ProductResponse convertToResponse(Product product){
+    public ProductResponse convertToResponse(Product product){
         ProductResponse response = new ProductResponse();
         response.setProductId(product.getProductId());
         response.setImageBase64(product.getImageProduct().getImageBase64());
@@ -129,13 +130,19 @@ public class ProductService {
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice());
         response.setQuantity(product.getQuantity());
-        response.setCategory(product.getCategory());
+
+        //Mapea categoria a CategoryResponseForProduct
+        CategoryResponseForProduct categoryResponseForProduct = new CategoryResponseForProduct();
+        categoryResponseForProduct.setName(product.getCategory().getName());
+        categoryResponseForProduct.setDescription(product.getCategory().getDescription());
+        response.setCategory(categoryResponseForProduct);
 
         UserAdminResponse userAdminResponse = new UserAdminResponse();
         userAdminResponse.setUserAdminId(product.getUserAdmin().getUserAdminId());
         userAdminResponse.setEmail(product.getUserAdmin().getEmail());
         userAdminResponse.setFullName(product.getUserAdmin().getFullName());
         response.setUserAdmin(userAdminResponse);
+
         return response;
     }
 

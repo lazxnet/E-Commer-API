@@ -32,12 +32,13 @@ public class ProductController {
             )
     )
     @PostMapping("/createproduct")
-    public ResponseEntity<Product> createProduct(
+    public ResponseEntity<ProductResponse> createProduct(
             @RequestBody ProductRequest productRequest,
             @RequestHeader("UserAdminId") UUID userAdminId
     ) {
         Product savedProduct = productService.createProduct(productRequest, userAdminId);
-        return ResponseEntity.ok(savedProduct);
+        ProductResponse response = productService.convertToResponse(savedProduct);
+        return ResponseEntity.ok(response);
     }
 
     //Obtener todos los Productos
