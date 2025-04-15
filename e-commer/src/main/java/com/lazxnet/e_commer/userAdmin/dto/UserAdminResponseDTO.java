@@ -1,6 +1,5 @@
 package com.lazxnet.e_commer.userAdmin.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.UUID;

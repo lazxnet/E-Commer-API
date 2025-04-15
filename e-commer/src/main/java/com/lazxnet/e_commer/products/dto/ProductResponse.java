@@ -1,6 +1,5 @@
 package com.lazxnet.e_commer.products.dto;
 
-import com.lazxnet.e_commer.categories.Entity.Category;
 import lombok.Getter;
 import lombok.Setter;
 
