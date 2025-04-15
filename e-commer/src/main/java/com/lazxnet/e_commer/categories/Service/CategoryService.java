@@ -54,8 +54,11 @@ public class CategoryService {
     }
 
     //Obtener todas las Categorias
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryResponseDTO> getAllCategories() {
+        return categoryRepository.findAll()
+        .stream()
+        .map(this :: convertToResponseDTO)
+        .collect(java.util.stream.Collectors.toList());
     }
 
     //Borrar categoria por id

@@ -50,7 +50,7 @@ public class CategoryController {
             description = "Endpoint para obtener todas las categorias"
     )
     @GetMapping("/showall_categories")
-    public List<Category> getAllCategories() {
+    public List<CategoryResponseDTO> getAllCategories() {
         return categoryService.getAllCategories();
     }
 
