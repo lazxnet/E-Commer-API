@@ -7,6 +7,5 @@ import lombok.Data;
 public class UserAdminResponse {
 
     private String fullName;
-
     private String email;
 }
