@@ -45,7 +45,7 @@ public class CategoryService {
         //Convertir UserAdmin a UserAdminResponseDTO
         UserAdmin userAdmin = category.getUserAdmin();
         UserAdminResponseDTO userAdminDTO = new UserAdminResponseDTO();
-        userAdminDTO.setUserAdminId(userAdmin.getUserAdminId());
+        //userAdminDTO.setUserAdminId(userAdmin.getUserAdminId());
         userAdminDTO.setEmail(userAdmin.getEmail());
         userAdminDTO.setFullName(userAdmin.getFullName());
 
