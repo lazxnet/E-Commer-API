@@ -140,7 +140,6 @@ public class ProductService {
         response.setCategory(categoryResponseForProduct);
 
         UserAdminResponse userAdminResponse = new UserAdminResponse();
-        userAdminResponse.setUserAdminId(product.getUserAdmin().getUserAdminId());
         userAdminResponse.setEmail(product.getUserAdmin().getEmail());
         userAdminResponse.setFullName(product.getUserAdmin().getFullName());
         response.setUserAdmin(userAdminResponse);
