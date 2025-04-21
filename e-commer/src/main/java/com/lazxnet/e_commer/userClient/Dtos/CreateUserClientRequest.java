@@ -13,8 +13,8 @@ public class CreateUserClientRequest {
     private String email;
 
     @NotBlank
-    private String password;
+    private String fullNameClient;
 
     @NotBlank
-    private String fullNameCient;
+    private String password;
 }

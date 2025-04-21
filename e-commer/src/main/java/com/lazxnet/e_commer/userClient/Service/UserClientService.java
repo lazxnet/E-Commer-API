@@ -32,10 +32,15 @@ public class UserClientService {
             throw new RuntimeException("El email ya esta registrado");
         }
 
+        //Validar contraseña
+        if (request.getPassword()== null || request.getPassword().isBlank()){
+            throw new IllegalArgumentException("La contraseña es requerida");
+        }
+
         //Crear y guardar el usuario
         UserClient userClient = new UserClient();
         userClient.setEmail(request.getEmail());
-        userClient.setFullNameClient(request.getFullNameCient());
+        userClient.setFullNameClient(request.getFullNameClient());
         userClient.setPassword(
             //Encriptar contraseña
             passwordClientEncoder.encode(
@@ -43,5 +48,16 @@ public class UserClientService {
             )
         );
         return userClientRepository.save(userClient);
+    }
+
+    //TODO: Login userClinet
+    public UserClient authenticaUserClient(String email, String password){
+        UserClient userClient = userClientRepository.findByEmail(email)
+        .orElseThrow(()-> new RuntimeException("Cliente no encontrado"));
+
+        if(!passwordClientEncoder.matches(password, userClient.getPassword())){
+            throw new RuntimeException("Contraseña incorrecta");
+        }
+        return userClient;
     }
 }
