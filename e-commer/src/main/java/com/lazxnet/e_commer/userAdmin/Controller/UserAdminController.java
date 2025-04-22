@@ -26,7 +26,7 @@ public class UserAdminController {
 
     //Crear UserAdmin
     @Operation(
-            summary = "Crear Usuario Administrador",
+            summary = "Crear Usuario Administrador (Desde el Swagger)",
             description = "Endpoint para crear un nuevo Usuario Administrador"
     )
     @PostMapping("/createAdminUser")
@@ -37,7 +37,7 @@ public class UserAdminController {
 
     //Eliminar UserAdmin por ID
     @Operation(
-            summary = "Eliminar usuario administrador por ID",
+            summary = "Eliminar usuario administrador por ID (Desde el Swagger) ",
             description = "Endpoint para eliminar un Usuario Administrador")
     @DeleteMapping("/deleteAdminUser/{userAdminId}")
     public ResponseEntity<?> deleteAdminUser(@PathVariable UUID userAdminId){

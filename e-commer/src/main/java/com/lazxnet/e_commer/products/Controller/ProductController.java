@@ -24,7 +24,7 @@ public class ProductController {
 
     //Crear productos
     @Operation(
-            summary = "Crear Producto",
+            summary = "Crear Producto (Solo administradores)",
             description = "Endpoint para crear un nuevo producto",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Datos del producto",
@@ -43,7 +43,7 @@ public class ProductController {
 
     //Obtener todos los Productos
     @Operation(
-            summary = "Obtener todos los productos",
+            summary = "Obtener todos los productos (Todos)",
             description = "Endpoint para obtener todos los productos"
     )
     @GetMapping("/showallproducts")
@@ -53,7 +53,7 @@ public class ProductController {
 
     //Editar un producto por id
     @Operation(
-            summary = "Actualizar producto por ID",
+            summary = "Actualizar producto por ID (Solo administradores)",
             description = "Endpoint para editar un producto"
     )
     @PutMapping("/update_product/{productId}")
@@ -68,7 +68,7 @@ public class ProductController {
 
     //Filtrar productos por categoria
     @Operation(
-            summary = "Filtrar productos por categoría",
+            summary = "Filtrar productos por categoría (Todos)",
             description = "Endpoint para obtener productos asociados a una categoría específica"
     )
     @GetMapping("/by-category/{categoryId}")
