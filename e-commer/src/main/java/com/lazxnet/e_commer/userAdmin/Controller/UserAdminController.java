@@ -4,6 +4,8 @@ import com.lazxnet.e_commer.userAdmin.Entity.UserAdmin;
 import com.lazxnet.e_commer.userAdmin.Service.UserAdminService;
 import com.lazxnet.e_commer.userAdmin.dto.CreateUserAdminRequest;
 import com.lazxnet.e_commer.userAdmin.dto.LoginUserAdminRequest;
+import com.lazxnet.e_commer.userAdmin.dto.UserAdminResponseDTO;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,24 @@ public class UserAdminController {
     public ResponseEntity<UserAdmin> createAdminUser(@RequestBody CreateUserAdminRequest request){
         UserAdmin newUser = userAdminService.createAdminUser(request);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    }
+
+    //Profile UserAdmin
+    @Operation(
+    summary = "Obtener perfil de usuario administrador por ID",
+    description = "Endpoint para obtener el email y nombre completo de un administrador por su ID"
+    )
+    @GetMapping("/profile/{userAdminId}")
+    public ResponseEntity<?> getAdminProfile(@PathVariable UUID userAdminId){
+        try {
+            UserAdminResponseDTO userAdminProfile = userAdminService.getAdminProfile(userAdminId);
+            return ResponseEntity.ok(userAdminProfile);
+        } catch (RuntimeException e) {
+            // TODO: handle exception
+            return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(Map.of("error", e.getMessage()));
+        }
     }
 
     //Eliminar UserAdmin por ID
