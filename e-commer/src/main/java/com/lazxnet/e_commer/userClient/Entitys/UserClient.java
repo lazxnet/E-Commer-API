@@ -23,7 +23,7 @@ public class UserClient{
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Type(type = "uuid-char")
-    @Column(name = "user_admin_id")
+    @Column(name = "user_client_id")
     private UUID userClientId;
 
     @Email

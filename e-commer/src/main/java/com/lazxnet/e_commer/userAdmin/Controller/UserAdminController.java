@@ -48,7 +48,6 @@ public class UserAdminController {
             UserAdminResponseDTO userAdminProfile = userAdminService.getAdminProfile(userAdminId);
             return ResponseEntity.ok(userAdminProfile);
         } catch (RuntimeException e) {
-            // TODO: handle exception
             return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(Map.of("error", e.getMessage()));

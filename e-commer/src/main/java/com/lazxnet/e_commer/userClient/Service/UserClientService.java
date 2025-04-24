@@ -1,10 +1,13 @@
 package com.lazxnet.e_commer.userClient.Service;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.lazxnet.e_commer.userClient.Dtos.CreateUserClientRequest;
+import com.lazxnet.e_commer.userClient.Dtos.UserClientResponse;
 import com.lazxnet.e_commer.userClient.Entitys.UserClient;
 import com.lazxnet.e_commer.userClient.Repository.UserClientRepository;
 
@@ -59,5 +62,17 @@ public class UserClientService {
             throw new RuntimeException("Contraseña incorrecta");
         }
         return userClient;
+    }
+
+    //Profile userClient
+    public UserClientResponse getClientProfile(UUID userClientId){
+        UserClient userClient = userClientRepository.findById(userClientId)
+        .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+
+        UserClientResponse response = new UserClientResponse();
+        response.setEmail(userClient.getEmail());
+        response.setFullName(userClient.getFullNameClient());
+
+        return response;
     }
 }
