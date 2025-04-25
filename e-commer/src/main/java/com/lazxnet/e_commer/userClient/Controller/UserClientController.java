@@ -46,7 +46,6 @@ public class UserClientController {
         return new ResponseEntity<>(newClient, HttpStatus.CREATED);
     }
 
-    //TODO: Login de usuario
     @Operation(
             summary = "Logiar Usuario",
             description = "Endpoint para logiar Usuario"
@@ -81,7 +80,6 @@ public class UserClientController {
             UserClientResponse userClientProfile = userClientService.getClientProfile(userClientId);
             return ResponseEntity.ok(userClientProfile);
         } catch (RuntimeException e) {
-            // TODO: handle exception
             return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(Map.of("error", e.getMessage()));
