@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lazxnet.e_commer.userClient.Dtos.CreateUserClientRequest;
+import com.lazxnet.e_commer.userClient.Dtos.CreateUserClientResponse;
 import com.lazxnet.e_commer.userClient.Dtos.LoginUserClientRequest;
 import com.lazxnet.e_commer.userClient.Dtos.UserClientResponse;
 import com.lazxnet.e_commer.userClient.Entitys.UserClient;
@@ -40,10 +41,9 @@ public class UserClientController {
             description = "Endpoint para crear un nuevo Usuario"
     )
     @PostMapping("/createUser") 
-    public ResponseEntity<UserClient> createClientUser(@Valid @RequestBody CreateUserClientRequest request){
-        System.out.println("Request recibido: " + request);
-        UserClient newClient = userClientService.createUserClient(request);
-        return new ResponseEntity<>(newClient, HttpStatus.CREATED);
+    public ResponseEntity<CreateUserClientResponse> createClientUser(@Valid @RequestBody CreateUserClientRequest request) {
+    CreateUserClientResponse newClient = userClientService.createUserClient(request);
+    return new ResponseEntity<>(newClient, HttpStatus.CREATED);
     }
 
     @Operation(
