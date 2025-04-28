@@ -10,6 +10,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.lazxnet.e_commer.userClient.Entitys.UserClient;
 
 @Entity
@@ -28,4 +29,8 @@ public class Cart {
     @JoinColumn(name = "user_client_id")
     @JsonBackReference
     private UserClient userClient;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<CartItem> items = new ArrayList<>();
 }

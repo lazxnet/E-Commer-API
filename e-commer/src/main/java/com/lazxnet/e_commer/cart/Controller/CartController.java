@@ -2,13 +2,19 @@ package com.lazxnet.e_commer.cart.Controller;
 
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lazxnet.e_commer.cart.Dto.AddProductRequest;
 import com.lazxnet.e_commer.cart.Entitys.Cart;
 import com.lazxnet.e_commer.cart.Service.CartService;
 
@@ -31,5 +37,20 @@ public class CartController {
     public ResponseEntity<Cart>getCartByUserClientId(@PathVariable UUID userClientId){
         Cart cart = cartService.getCartByUserId(userClientId);
         return ResponseEntity.ok(cart);
+    }
+
+    @PostMapping("/{userClientId}/add-product")
+    public ResponseEntity<?> addProductToCart(
+    @PathVariable UUID userClientId,
+    @Valid @RequestBody AddProductRequest request
+    ) {
+        try {
+            Cart updatedCart = cartService.addProductToCart(userClientId, request);
+            return ResponseEntity.ok(updatedCart);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }
