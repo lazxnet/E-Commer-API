@@ -8,7 +8,6 @@ import javax.validation.constraints.Email;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.lazxnet.e_commer.cart.Entitys.Cart;
 

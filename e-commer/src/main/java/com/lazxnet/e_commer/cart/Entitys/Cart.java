@@ -1,5 +1,7 @@
 package com.lazxnet.e_commer.cart.Entitys;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.*;
