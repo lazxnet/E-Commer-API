@@ -2,17 +2,22 @@ package com.lazxnet.e_commer.cart.Service;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.lazxnet.e_commer.cart.Dto.AddProductRequest;
+import com.lazxnet.e_commer.cart.Dto.CartItemResponse;
+import com.lazxnet.e_commer.cart.Dto.CartResponse;
 import com.lazxnet.e_commer.cart.Entitys.Cart;
 import com.lazxnet.e_commer.cart.Entitys.CartItem;
 import com.lazxnet.e_commer.cart.Repository.CartRepository;
 import com.lazxnet.e_commer.products.Entity.Product;
 import com.lazxnet.e_commer.products.Repository.ProductRepository;
+import com.lazxnet.e_commer.products.dto.ImageProductResponse;
+import com.lazxnet.e_commer.products.dto.ProductClientResponse;
 import com.lazxnet.e_commer.userClient.Entitys.UserClient;
 import com.lazxnet.e_commer.userClient.Repository.UserClientRepository;
 
@@ -38,14 +43,44 @@ public class CartService {
     }
 
     @Transactional(readOnly = true)
-    public Cart getCartByUserId(UUID userClientId) {
-        // Obtener el usuario
+    public CartResponse getCartByUserId(UUID userClientId) {
         UserClient user = userClientRepository.findById(userClientId)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        
-        // Obtener el carrito
-        return cartRepository.findByUserClient(user)
+    
+        Cart cart = cartRepository.findByUserClient(user)
             .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+    
+        return mapCartToResponse(cart);
+    }
+
+    private CartResponse mapCartToResponse(Cart cart) {
+        CartResponse response = new CartResponse();
+        response.setItems(
+            cart.getItems().stream().map(this:: mapCartItemToResponse).collect(Collectors.toList())
+        );
+        return response;
+    }
+    
+    private CartItemResponse mapCartItemToResponse(CartItem item) {
+        CartItemResponse itemResponse = new CartItemResponse();
+        itemResponse.setItemId(item.getItemId());
+        itemResponse.setProduct(mapProductToResponse(item.getProduct()));
+        itemResponse.setQuantity(item.getQuantity());
+        return itemResponse;
+    }
+    
+    private ProductClientResponse mapProductToResponse(Product product) {
+        ProductClientResponse productClientResponse = new ProductClientResponse();
+        productClientResponse.setName(product.getName());
+        productClientResponse.setDescription(product.getDescription());
+        productClientResponse.setPrice(product.getPrice());
+        
+        // Asumiendo que Product tiene una relación con ImageProduct
+        ImageProductResponse imageResponse = new ImageProductResponse();
+        imageResponse.setImageBase64(product.getImageProduct().getImageBase64());
+        productClientResponse.setImageProduct(imageResponse);
+        
+        return productClientResponse;
     }
 
     @Transactional

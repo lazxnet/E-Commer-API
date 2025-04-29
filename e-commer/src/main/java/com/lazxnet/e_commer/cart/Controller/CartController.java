@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lazxnet.e_commer.cart.Dto.AddProductRequest;
+import com.lazxnet.e_commer.cart.Dto.CartResponse;
 import com.lazxnet.e_commer.cart.Entitys.Cart;
 import com.lazxnet.e_commer.cart.Service.CartService;
 
@@ -34,10 +35,10 @@ public class CartController {
     }
 
     @GetMapping("/getcart/{userClientId}")
-    public ResponseEntity<Cart>getCartByUserClientId(@PathVariable UUID userClientId){
-        Cart cart = cartService.getCartByUserId(userClientId);
-        return ResponseEntity.ok(cart);
-    }
+    public ResponseEntity<CartResponse> getCartByUserClientId(@PathVariable UUID userClientId) {
+        CartResponse cartResponse = cartService.getCartByUserId(userClientId);
+        return ResponseEntity.ok(cartResponse);
+    } 
 
     @PostMapping("/{userClientId}/add-product")
     public ResponseEntity<?> addProductToCart(
