@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lazxnet.e_commer.cart.Dto.AddProductRequest;
 import com.lazxnet.e_commer.cart.Dto.CartResponse;
-import com.lazxnet.e_commer.cart.Entitys.Cart;
 import com.lazxnet.e_commer.cart.Service.CartService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,8 +45,8 @@ public class CartController {
     @Valid @RequestBody AddProductRequest request
     ) {
         try {
-            Cart updatedCart = cartService.addProductToCart(userClientId, request);
-            return ResponseEntity.ok(updatedCart);
+            CartResponse cartResponse = cartService.addProductToCart(userClientId, request);
+            return ResponseEntity.ok(cartResponse);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {

@@ -84,7 +84,7 @@ public class CartService {
     }
 
     @Transactional
-    public Cart addProductToCart(UUID userClientId, AddProductRequest request){
+    public CartResponse addProductToCart(UUID userClientId, AddProductRequest request){
         log.info("Received productId: {}", request.getProductId());
         
         UserClient user = userClientRepository.findById(userClientId)
@@ -113,6 +113,7 @@ public class CartService {
             newItem.setQuantity(request.getQuantity());
             cart.getItems().add(newItem);
         }
-        return cartRepository.save(cart);
+        Cart saveCart = cartRepository.save(cart);
+        return mapCartToResponse(saveCart);
     }
 }
