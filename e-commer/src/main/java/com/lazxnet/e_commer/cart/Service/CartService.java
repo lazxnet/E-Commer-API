@@ -85,7 +85,6 @@ public class CartService {
 
     @Transactional
     public CartResponse addProductToCart(UUID userClientId, AddProductRequest request){
-        log.info("Received productId: {}", request.getProductId());
         
         UserClient user = userClientRepository.findById(userClientId)
         .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
@@ -105,14 +104,32 @@ public class CartService {
         .findFirst();
 
         if (existingItem.isPresent()) {
-            existingItem.get().setQuantity(existingItem.get().getQuantity() + request.getQuantity());
-        } else {
-            CartItem newItem = new CartItem();
-            newItem.setCart(cart);
-            newItem.setProduct(product);
-            newItem.setQuantity(request.getQuantity());
-            cart.getItems().add(newItem);
+            throw new IllegalArgumentException("El producto ya está en el carrito"); // <-- Nuevo error
         }
+    
+        CartItem newItem = new CartItem();
+        newItem.setCart(cart);
+        newItem.setProduct(product);
+        newItem.setQuantity(request.getQuantity());
+        cart.getItems().add(newItem);
+    
+        Cart savedCart = cartRepository.save(cart);
+        return mapCartToResponse(savedCart);
+    }
+
+    public CartResponse removeItemFromCart(UUID userClientId, UUID itemId){
+        UserClient user = userClientRepository.findById(userClientId)
+        .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+        Cart cart = cartRepository.findByUserClient(user)
+        .orElseThrow(()-> new RuntimeException("Carrito no encontrado"));
+
+        boolean removed = cart.getItems().removeIf(
+            item -> item.getItemId().equals(itemId)
+        );
+        if (!removed) {
+            throw new RuntimeException("El item no existe en el carrito");
+        }
+        
         Cart saveCart = cartRepository.save(cart);
         return mapCartToResponse(saveCart);
     }
