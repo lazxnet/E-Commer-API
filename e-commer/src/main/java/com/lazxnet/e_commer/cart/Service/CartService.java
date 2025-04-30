@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.lazxnet.e_commer.cart.Dto.UpdateQuantityRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -132,5 +133,23 @@ public class CartService {
         
         Cart saveCart = cartRepository.save(cart);
         return mapCartToResponse(saveCart);
+    }
+
+    @Transactional
+    public CartResponse updateItemQuantity(UUID userClientId, UUID itemId, UpdateQuantityRequest request){
+        UserClient user = userClientRepository.findById(userClientId)
+                .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+        Cart cart = cartRepository.findByUserClient(user)
+                .orElseThrow(()-> new RuntimeException("Carrito no encontrado"));
+        CartItem item = cart.getItems().stream().filter(i -> i.getItemId().equals(itemId))
+                .findFirst().orElseThrow(()-> new RuntimeException("El item no existe en el carrito"));
+
+        if(request.getQuantity() <= 0){
+            throw new IllegalArgumentException("La cantidad debe ser mayor a 0");
+        }
+
+        item.setQuantity(request.getQuantity());
+        Cart savedCart = cartRepository.save(cart);
+        return mapCartToResponse(savedCart);
     }
 }
