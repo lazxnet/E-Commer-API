@@ -2,15 +2,14 @@ package com.lazxnet.e_commer.userClient.Entitys;
 
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.lazxnet.e_commer.cart.Entitys.Cart;
 
 import lombok.Data;
 
@@ -23,7 +22,7 @@ public class UserClient{
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Type(type = "uuid-char")
-    @Column(name = "user_admin_id")
+    @Column(name = "user_client_id")
     private UUID userClientId;
 
     @Email
@@ -35,5 +34,9 @@ public class UserClient{
 
     @Column(nullable = false)
     private String password;
+
+    @OneToOne(mappedBy = "userClient", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private Cart cart;
 
 }

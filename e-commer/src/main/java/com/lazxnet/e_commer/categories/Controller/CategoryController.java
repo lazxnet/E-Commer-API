@@ -24,7 +24,7 @@ public class CategoryController {
 
     //Crear Categoria
     @Operation(
-            summary = "Crear Categoria",
+            summary = "Crear Categoria (Solo administradores)",
             description = "Endpoint para crear una nueva categoria",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "datos de la categoria",
@@ -56,7 +56,7 @@ public class CategoryController {
 
     //Borrar categoria por id
     @Operation(
-            summary = "Borrar categoria por ID",
+            summary = "Borrar categoria por ID (Solo administradores)",
             description = "Endpoint para eliminar una categoria utilizando su ID"
     )
     @DeleteMapping("/delete_category/{id}")

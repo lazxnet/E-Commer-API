@@ -51,6 +51,8 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_admin_id",
             referencedColumnName = "user_admin_id",
-            nullable = false)
+            nullable = false,
+            foreignKey = @ForeignKey(name="FK_PRODUCT_USER_ADMIN")
+            )
     private UserAdmin userAdmin;
 }
