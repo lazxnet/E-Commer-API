@@ -20,6 +20,7 @@ import java.util.UUID;
 @Tag(name = "UserAdmin")
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/useradmin")
 public class UserAdminController {
 
