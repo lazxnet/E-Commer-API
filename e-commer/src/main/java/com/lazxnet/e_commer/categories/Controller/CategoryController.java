@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Category")
+
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/category")
 public class CategoryController {
 
