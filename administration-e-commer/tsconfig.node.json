@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "incremental": true,  
+    "target": "ES2022",  
+    "lib": ["ESNext", "DOM"],  
+    "module": "ESNext",  
+    "moduleResolution": "node",  
+    "skipLibCheck": true,
+
+    /* Modo Bundler */
+    "isolatedModules": true,  
+    "moduleDetection": "force",  
+    "noEmit": true,  
+
+    /* Linting */
+    "strict": true,  
+    "noUnusedLocals": true,  
+    "noUnusedParameters": true,  
+    "noFallthroughCasesInSwitch": true  
+    // Eliminar noUncheckedSideEffectImports
+  },
+  "include": ["vite.config.ts"]  
+}
