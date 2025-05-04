@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react"
 import { Category } from "./types"
 
 const CATEGORIES_CACHE_KEY = "cached_categories"
-const CACHE_EXPIRATION = 3600000
+const CACHE_EXPIRATION = 3600000 // 1 hora en milisegundos
 
 export default function CategoryModal({
   show,
@@ -25,7 +25,7 @@ export default function CategoryModal({
 
   useEffect(() => {
     if (show) loadCategories()
-  }, [show])
+  }, [show, loadCategories])
 
   const handleDelete = async (categoryId: string) => {
     try {
@@ -33,22 +33,32 @@ export default function CategoryModal({
       setDeletingId(categoryId)
       
       const userAdminId = sessionStorage.getItem("userAdminId")
-      if (!userAdminId) throw new Error("No se encontró ID de administrador")
+      if (!userAdminId) throw new Error("Acceso no autorizado")
 
-      const response = await fetch(
-        `http://localhost:8080/category/delete_category/${categoryId}?userAdminId=${userAdminId}`,
-        { method: "DELETE" }
+      // Construcción de URL con parámetros
+      const url = new URL(
+        `http://localhost:8080/category/delete_category/${categoryId}`
       )
+      url.searchParams.append("UserAdminId", userAdminId)
+
+      const response = await fetch(url.toString(), {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Error al eliminar categoría")
+        const errorText = await response.text()
+        throw new Error(errorText || "Error al eliminar la categoría")
       }
 
-      // Actualizar la lista después de eliminar
+      // Actualizar datos
+      sessionStorage.removeItem(CATEGORIES_CACHE_KEY)
       await loadCategories()
+
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : "Error desconocido")
+      setDeleteError(err instanceof Error ? err.message : "Error en el servidor")
     } finally {
       setDeletingId(null)
     }
@@ -65,6 +75,7 @@ export default function CategoryModal({
             <button 
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 text-2xl"
+              aria-label="Cerrar modal"
             >
               &times;
             </button>
@@ -92,12 +103,16 @@ export default function CategoryModal({
           ) : (
             <div className="grid gap-4">
               {categoriesList.map(category => (
-                <div key={category.categoryId} className="border rounded-lg p-4 relative">
-                  <div className="absolute top-2 right-2">
+                <div 
+                  key={category.categoryId} 
+                  className="border rounded-lg p-4 relative hover:bg-gray-50 transition-colors"
+                >
+                  <div className="absolute top-3 right-3">
                     <button
                       onClick={() => handleDelete(category.categoryId)}
                       disabled={deletingId === category.categoryId}
-                      className="text-red-500 hover:text-red-700 disabled:opacity-50"
+                      className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Eliminar categoría"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -115,8 +130,8 @@ export default function CategoryModal({
                       </svg>
                     </button>
                   </div>
-                  
-                  <h4 className="font-semibold text-lg">{category.name}</h4>
+
+                  <h4 className="font-semibold text-lg pr-6">{category.name}</h4>
                   <p className="text-gray-600 mt-1">{category.description}</p>
                   <div className="mt-2 text-sm text-gray-500">
                     <p>Creado por: {category.userAdmin.fullName}</p>
