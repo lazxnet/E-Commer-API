@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Category")
+
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/category")
 public class CategoryController {
 
@@ -24,7 +26,7 @@ public class CategoryController {
 
     //Crear Categoria
     @Operation(
-            summary = "Crear Categoria",
+            summary = "Crear Categoria (Solo administradores)",
             description = "Endpoint para crear una nueva categoria",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "datos de la categoria",
@@ -56,16 +58,16 @@ public class CategoryController {
 
     //Borrar categoria por id
     @Operation(
-            summary = "Borrar categoria por ID",
+            summary = "Borrar categoria por ID (Solo administradores)",
             description = "Endpoint para eliminar una categoria utilizando su ID"
     )
-    @DeleteMapping("/delete_category/{id}")
+    @DeleteMapping("/delete_category/{categoryId}")
     public ResponseEntity<String> deleteCategory(
-            @PathVariable UUID id,
+            @PathVariable UUID categoryId,
             @RequestParam("UserAdminId") UUID userAdminId
     ) {
 
-        categoryService.deleteCategoryById(id, userAdminId);
+        categoryService.deleteCategoryById(categoryId, userAdminId);
         return ResponseEntity.ok("Categoria eliminada correctamente");
     }
 

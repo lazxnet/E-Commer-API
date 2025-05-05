@@ -3,6 +3,8 @@ package com.lazxnet.e_commer.userAdmin.Service;
 import com.lazxnet.e_commer.userAdmin.Entity.UserAdmin;
 import com.lazxnet.e_commer.userAdmin.Repository.UserAdminRepository;
 import com.lazxnet.e_commer.userAdmin.dto.CreateUserAdminRequest;
+import com.lazxnet.e_commer.userAdmin.dto.UserAdminResponseDTO;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -72,5 +74,17 @@ public class UserAdminService {
         }
 
         return userAdmin;
+    }
+
+    //Profile userAdmin
+    public UserAdminResponseDTO getAdminProfile(UUID userAdminId){
+        UserAdmin userAdmin = userAdminRepository.findById(userAdminId)
+        .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
+
+        UserAdminResponseDTO response = new UserAdminResponseDTO();
+        response.setEmail(userAdmin.getEmail());
+        response.setFullName(userAdmin.getFullName());
+
+        return response;   
     }
 }
