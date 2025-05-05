@@ -8,93 +8,9 @@ import ProductCard from "./components/ProductCard"
 const CATEGORIES_CACHE_KEY = "cached_categories"
 const CACHE_EXPIRATION = 3600000 // 1 hora en milisegundos
 
-const products: Product[] = [
-  {
-    id: 1,
-    productName: "Auriculares Pro",
-    productDescription: "Auriculares inalámbricos de alta calidad",
-    price: 99.99,
-    quantity: 50,
-    category: "Audio",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 2,
-    productName: "Auriculares Premium",
-    productDescription: "Auriculares con cancelación de ruido",
-    price: 149.99,
-    quantity: 30,
-    category: "Audio",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 3,
-    productName: "Auriculares Gaming",
-    productDescription: "Auriculares para gaming con micrófono",
-    price: 79.99,
-    quantity: 45,
-    category: "Gaming",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 4,
-    productName: "Auriculares Deportivos",
-    productDescription: "Auriculares resistentes al agua para deportes",
-    price: 59.99,
-    quantity: 60,
-    category: "Deportes",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 5,
-    productName: "Auriculares Estudio",
-    productDescription: "Auriculares profesionales para estudio",
-    price: 199.99,
-    quantity: 15,
-    category: "Profesional",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 6,
-    productName: "Auriculares Infantiles",
-    productDescription: "Auriculares seguros para niños",
-    price: 39.99,
-    quantity: 75,
-    category: "Infantil",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 7,
-    productName: "Auriculares Bluetooth",
-    productDescription: "Auriculares con conexión Bluetooth 5.0",
-    price: 89.99,
-    quantity: 40,
-    category: "Audio",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 8,
-    productName: "Auriculares DJ",
-    productDescription: "Auriculares profesionales para DJ",
-    price: 179.99,
-    quantity: 20,
-    category: "Profesional",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-]
-
-
 export default function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Todas")
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products)
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -102,6 +18,9 @@ export default function Dashboard() {
   const [categoriesList, setCategoriesList] = useState<Category[]>([])
   const [categoriesLoading, setCategoriesLoading] = useState(false)
   const [categoriesError, setCategoriesError] = useState("")
+  const [products, setProducts] = useState<Product[]>([])
+  const [productsLoading, setProductsLoading] = useState(true)
+  const [productsError, setProductsError] = useState("")
 
   // Cargar perfil del admin
   useEffect(() => {
@@ -124,7 +43,24 @@ export default function Dashboard() {
     fetchAdminProfile()
   }, [])
 
-  // Cargar categorías con caché (corregido)
+  // Cargar productos
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/product/showallproducts")
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`)
+        const data = await response.json()
+        setProducts(data)
+      } catch (err) {
+        setProductsError(err instanceof Error ? err.message : "Error al cargar productos")
+      } finally {
+        setProductsLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [])
+
+  // Cargar categorías con caché
   const loadCategories = async () => {
     try {
       setCategoriesLoading(true)
@@ -144,7 +80,6 @@ export default function Dashboard() {
       
       const newData = await response.json()
       
-      // Corrección de sintaxis en sessionStorage
       sessionStorage.setItem(
         CATEGORIES_CACHE_KEY, 
         JSON.stringify({ data: newData, timestamp: Date.now() })
@@ -162,19 +97,19 @@ export default function Dashboard() {
     if (showCategoriesModal) loadCategories()
   }, [showCategoriesModal])
 
-  // Filtrar productos (corregido)
+  // Filtrar productos
   useEffect(() => {
     setFilteredProducts(
       selectedCategory === "Todas" 
         ? products 
-        : products.filter(product => product.category === selectedCategory)
-    ) // Paréntesis de cierre añadido
-  }, [selectedCategory])
+        : products.filter(product => product.category.name === selectedCategory)
+    )
+  }, [selectedCategory, products])
 
   const selectCategories = [
     "Todas",
     ...Array.from(new Set([
-      ...products.map(p => p.category),
+      ...products.map(p => p.category.name),
       ...categoriesList.map(c => c.name)
     ]))
   ]
@@ -224,15 +159,28 @@ export default function Dashboard() {
         />
 
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
-            {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-10 text-gray-500">
-              No hay productos en esta categoría
+          {productsLoading ? (
+            <div className="text-center py-10">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+              <p className="mt-4">Cargando productos...</p>
             </div>
+          ) : productsError ? (
+            <div className="text-red-500 text-center py-10">
+              Error: {productsError}
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
+                {filteredProducts.map(product => (
+                  <ProductCard key={product.productId} product={product} />
+                ))}
+              </div>
+              {filteredProducts.length === 0 && (
+                <div className="text-center py-10 text-gray-500">
+                  No hay productos en esta categoría
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>
