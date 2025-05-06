@@ -1,7 +1,8 @@
 "use client"
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { Product, AdminProfile, Category } from "./components/types"
 import CategoryModal from "./components/CategoryModal"
+import ProductModal from "./components/ProductModal"
 import Sidebar from "./components/Sidebar"
 import ProductCard from "./components/ProductCard"
 
@@ -15,12 +16,15 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [showCategoriesModal, setShowCategoriesModal] = useState(false)
+  const [showProductModal, setShowProductModal] = useState(false)
   const [categoriesList, setCategoriesList] = useState<Category[]>([])
   const [categoriesLoading, setCategoriesLoading] = useState(false)
   const [categoriesError, setCategoriesError] = useState("")
   const [products, setProducts] = useState<Product[]>([])
   const [productsLoading, setProductsLoading] = useState(true)
   const [productsError, setProductsError] = useState("")
+  const [createProductLoading, setCreateProductLoading] = useState(false)
+  const [createProductError, setCreateProductError] = useState("")
 
   // Cargar perfil del admin
   useEffect(() => {
@@ -114,6 +118,52 @@ export default function Dashboard() {
     ]))
   ]
 
+  // Manejar creación de productos
+  const handleCreateProduct = async (productData: any) => {
+    try {
+      setCreateProductLoading(true)
+      setCreateProductError("")
+  
+      const userAdminId = sessionStorage.getItem("userAdminId")
+      if (!userAdminId) throw new Error("No se encontró ID de administrador")
+  
+      const response = await fetch("http://localhost:8080/product/createproduct", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "UserAdminId": userAdminId // Enviar en header
+        },
+        body: JSON.stringify({
+          name: productData.name,
+          description: productData.description,
+          price: productData.price,
+          quantity: productData.quantity,
+          imageBase64: productData.imageBase64,
+          categoryId: productData.categoryId
+        }),
+      })
+  
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Error al crear producto")
+      }
+  
+      const newProduct = await response.json()
+      setProducts(prev => [...prev, newProduct])
+      setShowProductModal(false)
+    } catch (err) {
+      setCreateProductError(err instanceof Error ? err.message : "Error desconocido")
+    } finally {
+      setCreateProductLoading(false)
+    }
+  }
+
+  // Obtener categorías cacheadas
+  const cachedCategories = useMemo(() => {
+    const cachedData = sessionStorage.getItem(CATEGORIES_CACHE_KEY)
+    return cachedData ? JSON.parse(cachedData).data : []
+  }, [])
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <CategoryModal
@@ -123,6 +173,15 @@ export default function Dashboard() {
         loading={categoriesLoading}
         error={categoriesError}
         loadCategories={loadCategories}
+      />
+
+      <ProductModal
+        show={showProductModal}
+        onClose={() => setShowProductModal(false)}
+        onSubmit={handleCreateProduct}
+        categories={cachedCategories}
+        loading={createProductLoading}
+        error={createProductError}
       />
 
       <header className="border-b p-4 flex justify-between items-center">
@@ -156,6 +215,7 @@ export default function Dashboard() {
           setSelectedCategory={setSelectedCategory}
           categories={selectCategories}
           setShowCategoriesModal={setShowCategoriesModal}
+          setShowProductModal={setShowProductModal}
         />
 
         <main className="flex-1 overflow-y-auto p-6">
