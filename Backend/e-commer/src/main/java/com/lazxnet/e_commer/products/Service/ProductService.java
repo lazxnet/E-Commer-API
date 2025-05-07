@@ -148,13 +148,22 @@ public class ProductService {
     }
 
     //Eliminar productos por id
-    public Product deleteProductById(UUID id){
-        Product product = productRepository.findById(id).orElse(null);
+    public String deleteProductById(UUID productId, UUID userAdminId){
+        UserAdmin userAdmin = userAdminRepository.findById(userAdminId)
+        .orElseThrow(()-> new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "Administrador no encontrado"
+        ));
 
-        if (product != null){
-            productRepository.delete(product);
-        }
-        return product;
+        Product product = productRepository.findById(productId)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "El producto con ID " + productId + " no existe"
+        ));
+
+        productRepository.delete(product);
+
+        return "El producto eliminado";
     }
 
     //Obtener productos por categoria
