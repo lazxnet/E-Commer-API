@@ -27,7 +27,7 @@ export default function CategoryModal({
 
   useEffect(() => {
     if (show) loadCategories()
-  }, [show, loadCategories])
+  }, [show])
 
   const handleDelete = async (categoryId: string) => {
     try {
