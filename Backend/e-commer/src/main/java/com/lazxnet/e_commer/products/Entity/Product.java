@@ -1,5 +1,6 @@
 package com.lazxnet.e_commer.products.Entity;
 
+import com.lazxnet.e_commer.cart.Entitys.CartItem;
 import com.lazxnet.e_commer.categories.Entity.Category;
 import com.lazxnet.e_commer.userAdmin.Entity.UserAdmin;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,6 +11,8 @@ import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -55,4 +58,12 @@ public class Product {
             foreignKey = @ForeignKey(name="FK_PRODUCT_USER_ADMIN")
             )
     private UserAdmin userAdmin;
+
+    @OneToMany(
+        mappedBy = "product", 
+        cascade = CascadeType.ALL, 
+        orphanRemoval = true
+    )
+    @Schema(hidden = true)
+    private List<CartItem> cartItems = new ArrayList<>();
 }
