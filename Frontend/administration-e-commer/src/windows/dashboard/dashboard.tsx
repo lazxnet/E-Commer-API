@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from "react"
 import { Product, AdminProfile, Category } from "./components/types"
 import CategoryModal from "./components/CategoryModal"
 import ProductModal from "./components/ProductModal"
+import EditProductModal from "./components/EditProductModal"
 import Sidebar from "./components/Sidebar"
 import ProductCard from "./components/ProductCard"
 
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [error, setError] = useState("")
   const [showCategoriesModal, setShowCategoriesModal] = useState(false)
   const [showProductModal, setShowProductModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [categoriesList, setCategoriesList] = useState<Category[]>([])
   const [categoriesLoading, setCategoriesLoading] = useState(false)
   const [categoriesError, setCategoriesError] = useState("")
@@ -25,6 +27,9 @@ export default function Dashboard() {
   const [productsError, setProductsError] = useState("")
   const [createProductLoading, setCreateProductLoading] = useState(false)
   const [createProductError, setCreateProductError] = useState("")
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [updateProductLoading, setUpdateProductLoading] = useState(false)
+  const [updateProductError, setUpdateProductError] = useState("")
 
   // Cargar perfil del admin
   useEffect(() => {
@@ -69,7 +74,7 @@ export default function Dashboard() {
     try {
       setCategoriesLoading(true)
       setCategoriesError("")
-
+  
       const cachedData = sessionStorage.getItem(CATEGORIES_CACHE_KEY)
       if (cachedData) {
         const { data, timestamp } = JSON.parse(cachedData)
@@ -78,16 +83,16 @@ export default function Dashboard() {
           return
         }
       }
-
+  
       const response = await fetch("http://localhost:8080/category/showall_categories")
       if (!response.ok) throw new Error(`Error HTTP: ${response.status}`)
       
       const newData = await response.json()
       
-      sessionStorage.setItem(
+      sessionStorage.setItem( // Corregir aquí
         CATEGORIES_CACHE_KEY, 
         JSON.stringify({ data: newData, timestamp: Date.now() })
-      )
+      ) // <-- Añadir este paréntesis de cierre
       
       setCategoriesList(newData)
     } catch (err) {
@@ -118,7 +123,7 @@ export default function Dashboard() {
     ]))
   ]
 
-  // Manejar creación de productos
+  // Crear producto
   const handleCreateProduct = async (productData: any) => {
     try {
       setCreateProductLoading(true)
@@ -131,7 +136,7 @@ export default function Dashboard() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "UserAdminId": userAdminId // Enviar en header
+          "UserAdminId": userAdminId
         },
         body: JSON.stringify({
           name: productData.name,
@@ -155,6 +160,41 @@ export default function Dashboard() {
       setCreateProductError(err instanceof Error ? err.message : "Error desconocido")
     } finally {
       setCreateProductLoading(false)
+    }
+  }
+
+  // Actualizar producto
+  const handleUpdateProduct = async (productData: any) => {
+    try {
+      setUpdateProductLoading(true)
+      setUpdateProductError("")
+      
+      const userAdminId = sessionStorage.getItem("userAdminId")
+      if (!userAdminId || !editingProduct) throw new Error("Datos incompletos")
+
+      const response = await fetch(`http://localhost:8080/product/updateproduct/${editingProduct.productId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "UserAdminId": userAdminId
+        },
+        body: JSON.stringify(productData)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Error al actualizar producto")
+      }
+
+      const updatedProduct = await response.json()
+      setProducts(prev => prev.map(p => 
+        p.productId === updatedProduct.productId ? updatedProduct : p
+      ))
+      setShowEditModal(false)
+    } catch (err) {
+      setUpdateProductError(err instanceof Error ? err.message : "Error desconocido")
+    } finally {
+      setUpdateProductLoading(false)
     }
   }
 
@@ -182,6 +222,16 @@ export default function Dashboard() {
         categories={cachedCategories}
         loading={createProductLoading}
         error={createProductError}
+      />
+
+      <EditProductModal
+        show={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSubmit={handleUpdateProduct}
+        categories={cachedCategories}
+        product={editingProduct}
+        loading={updateProductLoading}
+        error={updateProductError}
       />
 
       <header className="border-b p-4 flex justify-between items-center">
@@ -232,7 +282,14 @@ export default function Dashboard() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
                 {filteredProducts.map(product => (
-                  <ProductCard key={product.productId} product={product} />
+                  <ProductCard 
+                    key={product.productId} 
+                    product={product}
+                    onEdit={() => {
+                      setEditingProduct(product)
+                      setShowEditModal(true)
+                    }}
+                  />
                 ))}
               </div>
               {filteredProducts.length === 0 && (
