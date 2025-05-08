@@ -1,6 +1,5 @@
 "use client"
-import React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
 
 type Props = {
   onCancel: () => void
@@ -21,23 +20,25 @@ export default function CreateCategoryForm({ onCancel, onCreateSuccess }: Props)
       const userAdminId = sessionStorage.getItem("userAdminId")
       if (!userAdminId) throw new Error("Acceso no autorizado")
 
-      const response = await fetch("http://localhost:8080/category/createcategory", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          userAdminId
-        })
-      })
+      const response = await fetch(
+        `http://localhost:8080/category/createcategory?UserAdminId=${userAdminId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            description: formData.description
+          })
+        }
+      )
 
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.message || "Error creando categoría")
       }
 
-      // Reset y actualización
       setFormData({ name: "", description: "" })
       await onCreateSuccess()
       onCancel()

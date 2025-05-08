@@ -1,186 +1,154 @@
-"use client"
-import React, { useState, useEffect } from "react"
-import { Product, AdminProfile, Category } from "./components/types"
-import CategoryModal from "./components/CategoryModal"
-import Sidebar from "./components/Sidebar"
-import ProductCard from "./components/ProductCard"
-
-const CATEGORIES_CACHE_KEY = "cached_categories"
-const CACHE_EXPIRATION = 3600000 // 1 hora en milisegundos
-
-const products: Product[] = [
-  {
-    id: 1,
-    productName: "Auriculares Pro",
-    productDescription: "Auriculares inalámbricos de alta calidad",
-    price: 99.99,
-    quantity: 50,
-    category: "Audio",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 2,
-    productName: "Auriculares Premium",
-    productDescription: "Auriculares con cancelación de ruido",
-    price: 149.99,
-    quantity: 30,
-    category: "Audio",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 3,
-    productName: "Auriculares Gaming",
-    productDescription: "Auriculares para gaming con micrófono",
-    price: 79.99,
-    quantity: 45,
-    category: "Gaming",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 4,
-    productName: "Auriculares Deportivos",
-    productDescription: "Auriculares resistentes al agua para deportes",
-    price: 59.99,
-    quantity: 60,
-    category: "Deportes",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 5,
-    productName: "Auriculares Estudio",
-    productDescription: "Auriculares profesionales para estudio",
-    price: 199.99,
-    quantity: 15,
-    category: "Profesional",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 6,
-    productName: "Auriculares Infantiles",
-    productDescription: "Auriculares seguros para niños",
-    price: 39.99,
-    quantity: 75,
-    category: "Infantil",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 7,
-    productName: "Auriculares Bluetooth",
-    productDescription: "Auriculares con conexión Bluetooth 5.0",
-    price: 89.99,
-    quantity: 40,
-    category: "Audio",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-  {
-    id: 8,
-    productName: "Auriculares DJ",
-    productDescription: "Auriculares profesionales para DJ",
-    price: 179.99,
-    quantity: 20,
-    category: "Profesional",
-    userAdmin: "Admin",
-    email: "admin@example.com",
-  },
-]
-
+"use client";
+import React, { useState, useEffect, useMemo } from "react";
+import { Product, AdminProfile, Category } from "./components/types";
+import CategoryModal from "./components/CategoryModal";
+import ProductModal from "./components/ProductModal";
+import EditProductModal from "./components/EditProductModal";
+import Sidebar from "./components/Sidebar";
+import ProductCard from "./components/ProductCard";
+import { ApiService } from "./service/api.service";
 
 export default function Dashboard() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("Todas")
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products)
-  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
-  const [showCategoriesModal, setShowCategoriesModal] = useState(false)
-  const [categoriesList, setCategoriesList] = useState<Category[]>([])
-  const [categoriesLoading, setCategoriesLoading] = useState(false)
-  const [categoriesError, setCategoriesError] = useState("")
-
+  // Estados
+  const [selectedCategory, setSelectedCategory] = useState<string>("Todas");
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  // Estados de modales
+  const [showCategoriesModal, setShowCategoriesModal] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  // Estados de categorías
+  const [categoriesList, setCategoriesList] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState("");
+  // Estados de productos
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState("");
+  // Estados de operaciones
+  const [createProductLoading, setCreateProductLoading] = useState(false);
+  const [createProductError, setCreateProductError] = useState("");
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [updateProductLoading, setUpdateProductLoading] = useState(false);
+  const [updateProductError, setUpdateProductError] = useState("");
+  const [deleteProductLoading, setDeleteProductLoading] = useState(false);
+  const [deleteProductError, setDeleteProductError] = useState("");
   // Cargar perfil del admin
   useEffect(() => {
-    const fetchAdminProfile = async () => {
+    const loadAdminProfile = async () => {
       try {
-        const userAdminId = sessionStorage.getItem("userAdminId")
-        if (!userAdminId) throw new Error("No se encontró ID de administrador")
-        
-        const response = await fetch(`http://localhost:8080/useradmin/profile/${userAdminId}`)
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`)
-        
-        const data: AdminProfile = await response.json()
-        setAdminProfile(data)
+        const userAdminId = sessionStorage.getItem("userAdminId");
+        if (!userAdminId) throw new Error("No se encontró ID de administrador");  
+        const profile = await ApiService.fetchAdminProfile(userAdminId);
+        setAdminProfile(profile);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Error desconocido")
+        setError(err instanceof Error ? err.message : "Error desconocido");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchAdminProfile()
-  }, [])
-
-  // Cargar categorías con caché (corregido)
+    };
+    loadAdminProfile();
+  }, []);
+  // Cargar productos iniciales
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const productsData = await ApiService.fetchProducts();
+        setProducts(productsData);
+      } catch (err) {
+        setProductsError(err instanceof Error ? err.message : "Error al cargar productos");
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+    loadProducts();
+  }, []);
+  // Cargar categorías
   const loadCategories = async () => {
     try {
-      setCategoriesLoading(true)
-      setCategoriesError("")
-
-      const cachedData = sessionStorage.getItem(CATEGORIES_CACHE_KEY)
-      if (cachedData) {
-        const { data, timestamp } = JSON.parse(cachedData)
-        if (Date.now() - timestamp < CACHE_EXPIRATION) {
-          setCategoriesList(data)
-          return
-        }
-      }
-
-      const response = await fetch("http://localhost:8080/category/showall_categories")
-      if (!response.ok) throw new Error(`Error HTTP: ${response.status}`)
-      
-      const newData = await response.json()
-      
-      // Corrección de sintaxis en sessionStorage
-      sessionStorage.setItem(
-        CATEGORIES_CACHE_KEY, 
-        JSON.stringify({ data: newData, timestamp: Date.now() })
-      )
-      
-      setCategoriesList(newData)
+      setCategoriesLoading(true);
+      const categories = await ApiService.loadCategories();
+      setCategoriesList(categories);
     } catch (err) {
-      setCategoriesError(err instanceof Error ? err.message : "Error al cargar categorías")
+      setCategoriesError(err instanceof Error ? err.message : "Error al cargar categorías");
     } finally {
-      setCategoriesLoading(false)
+      setCategoriesLoading(false);
     }
-  }
-
-  useEffect(() => {
-    if (showCategoriesModal) loadCategories()
-  }, [showCategoriesModal])
-
-  // Filtrar productos (corregido)
+  };
+  // Filtrar productos por categoría
   useEffect(() => {
     setFilteredProducts(
-      selectedCategory === "Todas" 
-        ? products 
-        : products.filter(product => product.category === selectedCategory)
-    ) // Paréntesis de cierre añadido
-  }, [selectedCategory])
-
-  const selectCategories = [
+      selectedCategory === "Todas"
+        ? products
+        : products.filter(product => product.category.name === selectedCategory)
+    );
+  }, [selectedCategory, products]);
+  // Lista de categorías para el selector
+  const selectCategories = useMemo(() => [
     "Todas",
     ...Array.from(new Set([
-      ...products.map(p => p.category),
+      ...products.map(p => p.category.name),
       ...categoriesList.map(c => c.name)
     ]))
-  ]
+  ], [products, categoriesList]);
+  // Manejar creación de producto
+  const handleCreateProduct = async (productData: any) => {
+    try {
+      setCreateProductLoading(true);
+      const userAdminId = sessionStorage.getItem("userAdminId") || "";
+      const newProduct = await ApiService.createProduct(userAdminId, productData);
+      setProducts(prev => [...prev, newProduct]);
+      setShowProductModal(false);
+    } catch (err) {
+      setCreateProductError(err instanceof Error ? err.message : "Error desconocido");
+    } finally {
+      setCreateProductLoading(false);
+    }
+  };
+  // Manejar actualización de producto
+  const handleUpdateProduct = async (productData: any) => {
+    try {
+      setUpdateProductLoading(true);
+      const userAdminId = sessionStorage.getItem("userAdminId") || "";
+      if (!editingProduct) throw new Error("Producto no seleccionado");
+      const updatedProduct = await ApiService.updateProduct(
+        userAdminId,
+        editingProduct.productId,
+        productData
+      );
+      setProducts(prev => prev.map(p => 
+        p.productId === updatedProduct.productId ? updatedProduct : p
+      ));
+      setShowEditModal(false);
+    } catch (err) {
+      setUpdateProductError(err instanceof Error ? err.message : "Error desconocido");
+    } finally {
+      setUpdateProductLoading(false);
+    }
+  };
+  // Manejar eliminación de producto
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      setDeleteProductLoading(true);
+      const userAdminId = sessionStorage.getItem("userAdminId") || "";
+      await ApiService.deleteProduct(userAdminId, productId);
+      setProducts(prev => prev.filter(p => p.productId !== productId));
+    } catch (err) {
+      setDeleteProductError(err instanceof Error ? err.message : "Error desconocido");
+    } finally {
+      setDeleteProductLoading(false);
+    }
+  };
+  // Obtener categorías cacheadas
+  const cachedCategories = useMemo(() => {
+    return categoriesList;
+  }, [categoriesList]);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
+      {/* Modales */}
       <CategoryModal
         show={showCategoriesModal}
         onClose={() => setShowCategoriesModal(false)}
@@ -189,7 +157,24 @@ export default function Dashboard() {
         error={categoriesError}
         loadCategories={loadCategories}
       />
-
+      <ProductModal
+        show={showProductModal}
+        onClose={() => setShowProductModal(false)}
+        onSubmit={handleCreateProduct}
+        categories={cachedCategories}
+        loading={createProductLoading}
+        error={createProductError}
+      />
+      <EditProductModal
+        show={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSubmit={handleUpdateProduct}
+        categories={cachedCategories}
+        product={editingProduct}
+        loading={updateProductLoading}
+        error={updateProductError}
+      />
+      {/* Header */}
       <header className="border-b p-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <div className="flex items-center gap-3">
@@ -205,7 +190,9 @@ export default function Dashboard() {
               </div>
             ) : (
               <>
-                <p className="font-medium">{adminProfile?.fullName || "Administrador"}</p>
+                <p className="font-medium">
+                  {adminProfile?.fullName || "Administrador"}
+                </p>
                 <p className="text-sm text-gray-500 break-all">
                   {adminProfile?.email || "admin@example.com"}
                 </p>
@@ -214,28 +201,64 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
-
+      {/* Contenido principal */}
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
           categories={selectCategories}
           setShowCategoriesModal={setShowCategoriesModal}
+          setShowProductModal={setShowProductModal}
         />
-
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
-            {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-10 text-gray-500">
-              No hay productos en esta categoría
+          {productsLoading ? (
+            <div className="text-center py-10">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+              <p className="mt-4">Cargando productos...</p>
             </div>
+          ) : productsError ? (
+            <div className="text-red-500 text-center py-10">
+              Error: {productsError}
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.productId}
+                    product={product}
+                    onEdit={() => {
+                      setEditingProduct(product);
+                      setShowEditModal(true);
+                    }}
+                    onDelete={() => {
+                      if (confirm("¿Estás seguro de eliminar este producto?")) {
+                        handleDeleteProduct(product.productId);
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+              {filteredProducts.length === 0 && (
+                <div className="text-center py-10 text-gray-500">
+                  No hay productos en esta categoría
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>
+      {/* Notificaciones */}
+      {deleteProductError && (
+        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {deleteProductError}
+        </div>
+      )}
+      {deleteProductLoading && (
+        <div className="fixed top-4 right-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+          Eliminando producto...
+        </div>
+      )}
     </div>
-  )
+  );
 }

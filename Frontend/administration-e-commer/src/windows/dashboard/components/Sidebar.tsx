@@ -6,12 +6,14 @@ export default function Sidebar({
   selectedCategory,
   setSelectedCategory,
   categories,
-  setShowCategoriesModal
+  setShowCategoriesModal,
+  setShowProductModal
 }: {
   selectedCategory: string
   setSelectedCategory: Dispatch<SetStateAction<string>>
   categories: string[]
   setShowCategoriesModal: Dispatch<SetStateAction<boolean>>
+  setShowProductModal: Dispatch<SetStateAction<boolean>>
 }) {
   return (
     <aside className="w-64 border-r p-4 flex flex-col justify-between bg-gray-50">
@@ -32,7 +34,10 @@ export default function Sidebar({
           </select>
         </div>
         
-        <button className="w-full bg-green-200 hover:bg-green-300 text-black rounded-md px-4 py-2">
+        <button 
+          className="w-full bg-green-200 hover:bg-green-300 text-black rounded-md px-4 py-2"
+          onClick={() => setShowProductModal(true)}
+        >
           Crear producto
         </button>
         

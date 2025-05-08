@@ -1,13 +1,18 @@
 export type Product = {
-    id: number
-    productName: string
-    productDescription: string
-    price: number
-    quantity: number
-    category: string
-    userAdmin: string
+  productId: string
+  imageBase64: string
+  name: string
+  description: string
+  price: number
+  quantity: number
+  category: {
+    name: string
+  }
+  userAdmin: {
+    fullName: string
     email: string
   }
+}
   
   export type AdminProfile = {
     fullName: string

@@ -16,6 +16,7 @@ import java.util.UUID;
 @Tag(name = "Products")
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/product")
 public class ProductController {
 
@@ -76,5 +77,19 @@ public class ProductController {
             @PathVariable UUID categoryId) {
         List<ProductResponse> products = productService.getProductsByCategoryId(categoryId);
         return ResponseEntity.ok(products);
+    }
+
+    //Borrar un producto
+    @Operation(
+        summary = "Eliminar un producto",
+        description = "Endpoint para eliminar un producto por id"
+    )
+    @DeleteMapping("/delete_product/{productId}")
+    public ResponseEntity<String> deleteProduct(
+        @PathVariable UUID productId,
+        @RequestHeader("UserAdminId") UUID userAdminId
+    ){
+        String message = productService.deleteProductById(productId, userAdminId);
+        return ResponseEntity.ok(message);
     }
 }
