@@ -42,7 +42,7 @@ export default function ProductCard({
 
       {/* Sección unida de stock y categoría */}
       <div className="border-t p-4 bg-gray-50">
-        <div className="flex gap-4 text-sm"> 
+        <div className="flex gap-12 text-sm"> 
           <div className="flex items-center">
             <span className="font-medium text-gray-600 mr-1">Stock:</span>
             <span className={product.quantity > 0 ? "text-green-600" : "text-red-600"}>
