@@ -30,6 +30,8 @@ export default function Dashboard() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [updateProductLoading, setUpdateProductLoading] = useState(false);
   const [updateProductError, setUpdateProductError] = useState("");
+  const [deleteProductLoading, setDeleteProductLoading] = useState(false);
+  const [deleteProductError, setDeleteProductError] = useState("");
 
   // Cargar perfil del admin
   useEffect(() => {
@@ -225,6 +227,40 @@ export default function Dashboard() {
     }
   };
 
+  // Función para eliminar producto
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      setDeleteProductLoading(true);
+      setDeleteProductError("");
+
+      const userAdminId = sessionStorage.getItem("userAdminId");
+      if (!userAdminId) throw new Error("No se encontró ID de administrador");
+
+      const response = await fetch(
+        `http://localhost:8080/product/delete_product/${productId}`,
+        {
+          method: "DELETE",
+          headers: {
+            UserAdminId: userAdminId,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error al eliminar producto");
+      }
+
+      setProducts((prev) => prev.filter((p) => p.productId !== productId));
+    } catch (err) {
+      setDeleteProductError(
+        err instanceof Error ? err.message : "Error desconocido"
+      );
+    } finally {
+      setDeleteProductLoading(false);
+    }
+  };
+
   // Obtener categorías cacheadas
   const cachedCategories = useMemo(() => {
     const cachedData = sessionStorage.getItem(CATEGORIES_CACHE_KEY);
@@ -317,6 +353,11 @@ export default function Dashboard() {
                     onEdit={() => {
                       setEditingProduct(product);
                       setShowEditModal(true);
+                    }}
+                    onDelete={() => {
+                      if (confirm("¿Estás seguro de eliminar este producto?")) {
+                        handleDeleteProduct(product.productId);
+                      }
                     }}
                   />
                 ))}

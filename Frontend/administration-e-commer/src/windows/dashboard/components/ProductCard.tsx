@@ -1,21 +1,35 @@
 "use client"
 import React from "react"
 import { Product } from "./types"
-import { FiEdit } from "react-icons/fi"
+import { FiEdit, FiTrash2 } from "react-icons/fi"
 
-export default function ProductCard({ product, onEdit }: { 
+export default function ProductCard({ 
+  product, 
+  onEdit, 
+  onDelete 
+}: { 
   product: Product 
   onEdit: () => void 
+  onDelete: () => void 
 }) {
   return (
     <div className="overflow-hidden border-2 rounded-md bg-white relative">
-      <button 
-        onClick={onEdit}
-        className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full"
-        aria-label="Editar producto"
-      >
-        <FiEdit className="text-blue-500 text-xl" />
-      </button>
+      <div className="absolute top-2 right-2 flex gap-2">
+        <button 
+          onClick={onEdit}
+          className="p-2 hover:bg-gray-100 rounded-full"
+          aria-label="Editar producto"
+        >
+          <FiEdit className="text-blue-500 text-xl" />
+        </button>
+        <button 
+          onClick={onDelete}
+          className="p-2 hover:bg-gray-100 rounded-full"
+          aria-label="Eliminar producto"
+        >
+          <FiTrash2 className="text-red-500 text-xl" />
+        </button>
+      </div>
       
       <div className="p-4 flex justify-center">
         <img
