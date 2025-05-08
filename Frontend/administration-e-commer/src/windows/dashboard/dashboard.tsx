@@ -6,25 +6,28 @@ import ProductModal from "./components/ProductModal";
 import EditProductModal from "./components/EditProductModal";
 import Sidebar from "./components/Sidebar";
 import ProductCard from "./components/ProductCard";
-
-const CATEGORIES_CACHE_KEY = "cached_categories";
-const CACHE_EXPIRATION = 3600000; // 1 hora en milisegundos
+import { ApiService } from "./service/api.service";
 
 export default function Dashboard() {
+  // Estados
   const [selectedCategory, setSelectedCategory] = useState<string>("Todas");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // Estados de modales
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  // Estados de categorías
   const [categoriesList, setCategoriesList] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoriesError, setCategoriesError] = useState("");
+  // Estados de productos
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [productsError, setProductsError] = useState("");
+  // Estados de operaciones
   const [createProductLoading, setCreateProductLoading] = useState(false);
   const [createProductError, setCreateProductError] = useState("");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -32,243 +35,120 @@ export default function Dashboard() {
   const [updateProductError, setUpdateProductError] = useState("");
   const [deleteProductLoading, setDeleteProductLoading] = useState(false);
   const [deleteProductError, setDeleteProductError] = useState("");
-
   // Cargar perfil del admin
   useEffect(() => {
-    const fetchAdminProfile = async () => {
+    const loadAdminProfile = async () => {
       try {
         const userAdminId = sessionStorage.getItem("userAdminId");
-        if (!userAdminId) throw new Error("No se encontró ID de administrador");
-
-        const response = await fetch(
-          `http://localhost:8080/useradmin/profile/${userAdminId}`
-        );
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-        const data: AdminProfile = await response.json();
-        setAdminProfile(data);
+        if (!userAdminId) throw new Error("No se encontró ID de administrador");  
+        const profile = await ApiService.fetchAdminProfile(userAdminId);
+        setAdminProfile(profile);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error desconocido");
       } finally {
         setLoading(false);
       }
     };
-    fetchAdminProfile();
+    loadAdminProfile();
   }, []);
-
-  // Cargar productos
+  // Cargar productos iniciales
   useEffect(() => {
-    const fetchProducts = async () => {
+    const loadProducts = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:8080/product/showallproducts"
-        );
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-        const data = await response.json();
-        setProducts(data);
+        const productsData = await ApiService.fetchProducts();
+        setProducts(productsData);
       } catch (err) {
-        setProductsError(
-          err instanceof Error ? err.message : "Error al cargar productos"
-        );
+        setProductsError(err instanceof Error ? err.message : "Error al cargar productos");
       } finally {
         setProductsLoading(false);
       }
     };
-    fetchProducts();
+    loadProducts();
   }, []);
-
-  // Cargar categorías con caché
+  // Cargar categorías
   const loadCategories = async () => {
     try {
       setCategoriesLoading(true);
-      setCategoriesError("");
-
-      const cachedData = sessionStorage.getItem(CATEGORIES_CACHE_KEY);
-      if (cachedData) {
-        const { data, timestamp } = JSON.parse(cachedData);
-        if (Date.now() - timestamp < CACHE_EXPIRATION) {
-          setCategoriesList(data);
-          return;
-        }
-      }
-
-      const response = await fetch(
-        "http://localhost:8080/category/showall_categories"
-      );
-      if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-      const newData = await response.json();
-
-      sessionStorage.setItem(
-        // Corregir aquí
-        CATEGORIES_CACHE_KEY,
-        JSON.stringify({ data: newData, timestamp: Date.now() })
-      ); // <-- Añadir este paréntesis de cierre
-
-      setCategoriesList(newData);
+      const categories = await ApiService.loadCategories();
+      setCategoriesList(categories);
     } catch (err) {
-      setCategoriesError(
-        err instanceof Error ? err.message : "Error al cargar categorías"
-      );
+      setCategoriesError(err instanceof Error ? err.message : "Error al cargar categorías");
     } finally {
       setCategoriesLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (showCategoriesModal) loadCategories();
-  }, [showCategoriesModal]);
-
-  // Filtrar productos
+  // Filtrar productos por categoría
   useEffect(() => {
     setFilteredProducts(
       selectedCategory === "Todas"
         ? products
-        : products.filter(
-            (product) => product.category.name === selectedCategory
-          )
+        : products.filter(product => product.category.name === selectedCategory)
     );
   }, [selectedCategory, products]);
-
-  const selectCategories = [
+  // Lista de categorías para el selector
+  const selectCategories = useMemo(() => [
     "Todas",
-    ...Array.from(
-      new Set([
-        ...products.map((p) => p.category.name),
-        ...categoriesList.map((c) => c.name),
-      ])
-    ),
-  ];
-
-  // Crear producto
+    ...Array.from(new Set([
+      ...products.map(p => p.category.name),
+      ...categoriesList.map(c => c.name)
+    ]))
+  ], [products, categoriesList]);
+  // Manejar creación de producto
   const handleCreateProduct = async (productData: any) => {
     try {
       setCreateProductLoading(true);
-      setCreateProductError("");
-
-      const userAdminId = sessionStorage.getItem("userAdminId");
-      if (!userAdminId) throw new Error("No se encontró ID de administrador");
-
-      const response = await fetch(
-        "http://localhost:8080/product/createproduct",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            UserAdminId: userAdminId,
-          },
-          body: JSON.stringify({
-            name: productData.name,
-            description: productData.description,
-            price: productData.price,
-            quantity: productData.quantity,
-            imageBase64: productData.imageBase64,
-            categoryId: productData.categoryId,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error al crear producto");
-      }
-
-      const newProduct = await response.json();
-      setProducts((prev) => [...prev, newProduct]);
+      const userAdminId = sessionStorage.getItem("userAdminId") || "";
+      const newProduct = await ApiService.createProduct(userAdminId, productData);
+      setProducts(prev => [...prev, newProduct]);
       setShowProductModal(false);
     } catch (err) {
-      setCreateProductError(
-        err instanceof Error ? err.message : "Error desconocido"
-      );
+      setCreateProductError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setCreateProductLoading(false);
     }
   };
-
-  // Actualizar producto
+  // Manejar actualización de producto
   const handleUpdateProduct = async (productData: any) => {
     try {
       setUpdateProductLoading(true);
-      setUpdateProductError("");
-
-      const userAdminId = sessionStorage.getItem("userAdminId");
-      if (!userAdminId || !editingProduct) throw new Error("Datos incompletos");
-
-      const response = await fetch(
-        `http://localhost:8080/product/update_product/${editingProduct.productId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            UserAdminId: userAdminId,
-          },
-          body: JSON.stringify(productData),
-        }
+      const userAdminId = sessionStorage.getItem("userAdminId") || "";
+      if (!editingProduct) throw new Error("Producto no seleccionado");
+      const updatedProduct = await ApiService.updateProduct(
+        userAdminId,
+        editingProduct.productId,
+        productData
       );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error al actualizar producto");
-      }
-
-      const updatedProduct = await response.json();
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.productId === updatedProduct.productId ? updatedProduct : p
-        )
-      );
+      setProducts(prev => prev.map(p => 
+        p.productId === updatedProduct.productId ? updatedProduct : p
+      ));
       setShowEditModal(false);
     } catch (err) {
-      setUpdateProductError(
-        err instanceof Error ? err.message : "Error desconocido"
-      );
+      setUpdateProductError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setUpdateProductLoading(false);
     }
   };
-
-  // Función para eliminar producto
+  // Manejar eliminación de producto
   const handleDeleteProduct = async (productId: string) => {
     try {
       setDeleteProductLoading(true);
-      setDeleteProductError("");
-
-      const userAdminId = sessionStorage.getItem("userAdminId");
-      if (!userAdminId) throw new Error("No se encontró ID de administrador");
-
-      const response = await fetch(
-        `http://localhost:8080/product/delete_product/${productId}`,
-        {
-          method: "DELETE",
-          headers: {
-            UserAdminId: userAdminId,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error al eliminar producto");
-      }
-
-      setProducts((prev) => prev.filter((p) => p.productId !== productId));
+      const userAdminId = sessionStorage.getItem("userAdminId") || "";
+      await ApiService.deleteProduct(userAdminId, productId);
+      setProducts(prev => prev.filter(p => p.productId !== productId));
     } catch (err) {
-      setDeleteProductError(
-        err instanceof Error ? err.message : "Error desconocido"
-      );
+      setDeleteProductError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setDeleteProductLoading(false);
     }
   };
-
   // Obtener categorías cacheadas
   const cachedCategories = useMemo(() => {
-    const cachedData = sessionStorage.getItem(CATEGORIES_CACHE_KEY);
-    return cachedData ? JSON.parse(cachedData).data : [];
-  }, []);
+    return categoriesList;
+  }, [categoriesList]);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
+      {/* Modales */}
       <CategoryModal
         show={showCategoriesModal}
         onClose={() => setShowCategoriesModal(false)}
@@ -277,7 +157,6 @@ export default function Dashboard() {
         error={categoriesError}
         loadCategories={loadCategories}
       />
-
       <ProductModal
         show={showProductModal}
         onClose={() => setShowProductModal(false)}
@@ -286,7 +165,6 @@ export default function Dashboard() {
         loading={createProductLoading}
         error={createProductError}
       />
-
       <EditProductModal
         show={showEditModal}
         onClose={() => setShowEditModal(false)}
@@ -296,7 +174,7 @@ export default function Dashboard() {
         loading={updateProductLoading}
         error={updateProductError}
       />
-
+      {/* Header */}
       <header className="border-b p-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <div className="flex items-center gap-3">
@@ -323,7 +201,7 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
-
+      {/* Contenido principal */}
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           selectedCategory={selectedCategory}
@@ -332,7 +210,6 @@ export default function Dashboard() {
           setShowCategoriesModal={setShowCategoriesModal}
           setShowProductModal={setShowProductModal}
         />
-
         <main className="flex-1 overflow-y-auto p-6">
           {productsLoading ? (
             <div className="text-center py-10">
@@ -371,6 +248,17 @@ export default function Dashboard() {
           )}
         </main>
       </div>
+      {/* Notificaciones */}
+      {deleteProductError && (
+        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {deleteProductError}
+        </div>
+      )}
+      {deleteProductLoading && (
+        <div className="fixed top-4 right-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+          Eliminando producto...
+        </div>
+      )}
     </div>
   );
 }
