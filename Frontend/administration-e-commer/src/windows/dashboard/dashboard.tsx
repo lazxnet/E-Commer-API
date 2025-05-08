@@ -1,208 +1,235 @@
-"use client"
-import React, { useState, useEffect, useMemo } from "react"
-import { Product, AdminProfile, Category } from "./components/types"
-import CategoryModal from "./components/CategoryModal"
-import ProductModal from "./components/ProductModal"
-import EditProductModal from "./components/EditProductModal"
-import Sidebar from "./components/Sidebar"
-import ProductCard from "./components/ProductCard"
+"use client";
+import React, { useState, useEffect, useMemo } from "react";
+import { Product, AdminProfile, Category } from "./components/types";
+import CategoryModal from "./components/CategoryModal";
+import ProductModal from "./components/ProductModal";
+import EditProductModal from "./components/EditProductModal";
+import Sidebar from "./components/Sidebar";
+import ProductCard from "./components/ProductCard";
 
-const CATEGORIES_CACHE_KEY = "cached_categories"
-const CACHE_EXPIRATION = 3600000 // 1 hora en milisegundos
+const CATEGORIES_CACHE_KEY = "cached_categories";
+const CACHE_EXPIRATION = 3600000; // 1 hora en milisegundos
 
 export default function Dashboard() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("Todas")
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
-  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
-  const [showCategoriesModal, setShowCategoriesModal] = useState(false)
-  const [showProductModal, setShowProductModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [categoriesList, setCategoriesList] = useState<Category[]>([])
-  const [categoriesLoading, setCategoriesLoading] = useState(false)
-  const [categoriesError, setCategoriesError] = useState("")
-  const [products, setProducts] = useState<Product[]>([])
-  const [productsLoading, setProductsLoading] = useState(true)
-  const [productsError, setProductsError] = useState("")
-  const [createProductLoading, setCreateProductLoading] = useState(false)
-  const [createProductError, setCreateProductError] = useState("")
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [updateProductLoading, setUpdateProductLoading] = useState(false)
-  const [updateProductError, setUpdateProductError] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<string>("Todas");
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showCategoriesModal, setShowCategoriesModal] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [categoriesList, setCategoriesList] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState("");
+  const [createProductLoading, setCreateProductLoading] = useState(false);
+  const [createProductError, setCreateProductError] = useState("");
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [updateProductLoading, setUpdateProductLoading] = useState(false);
+  const [updateProductError, setUpdateProductError] = useState("");
 
   // Cargar perfil del admin
   useEffect(() => {
     const fetchAdminProfile = async () => {
       try {
-        const userAdminId = sessionStorage.getItem("userAdminId")
-        if (!userAdminId) throw new Error("No se encontró ID de administrador")
-        
-        const response = await fetch(`http://localhost:8080/useradmin/profile/${userAdminId}`)
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`)
-        
-        const data: AdminProfile = await response.json()
-        setAdminProfile(data)
+        const userAdminId = sessionStorage.getItem("userAdminId");
+        if (!userAdminId) throw new Error("No se encontró ID de administrador");
+
+        const response = await fetch(
+          `http://localhost:8080/useradmin/profile/${userAdminId}`
+        );
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+        const data: AdminProfile = await response.json();
+        setAdminProfile(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Error desconocido")
+        setError(err instanceof Error ? err.message : "Error desconocido");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchAdminProfile()
-  }, [])
+    };
+    fetchAdminProfile();
+  }, []);
 
   // Cargar productos
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:8080/product/showallproducts")
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`)
-        const data = await response.json()
-        setProducts(data)
+        const response = await fetch(
+          "http://localhost:8080/product/showallproducts"
+        );
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        const data = await response.json();
+        setProducts(data);
       } catch (err) {
-        setProductsError(err instanceof Error ? err.message : "Error al cargar productos")
+        setProductsError(
+          err instanceof Error ? err.message : "Error al cargar productos"
+        );
       } finally {
-        setProductsLoading(false)
+        setProductsLoading(false);
       }
-    }
-    fetchProducts()
-  }, [])
+    };
+    fetchProducts();
+  }, []);
 
   // Cargar categorías con caché
   const loadCategories = async () => {
     try {
-      setCategoriesLoading(true)
-      setCategoriesError("")
-  
-      const cachedData = sessionStorage.getItem(CATEGORIES_CACHE_KEY)
+      setCategoriesLoading(true);
+      setCategoriesError("");
+
+      const cachedData = sessionStorage.getItem(CATEGORIES_CACHE_KEY);
       if (cachedData) {
-        const { data, timestamp } = JSON.parse(cachedData)
+        const { data, timestamp } = JSON.parse(cachedData);
         if (Date.now() - timestamp < CACHE_EXPIRATION) {
-          setCategoriesList(data)
-          return
+          setCategoriesList(data);
+          return;
         }
       }
-  
-      const response = await fetch("http://localhost:8080/category/showall_categories")
-      if (!response.ok) throw new Error(`Error HTTP: ${response.status}`)
-      
-      const newData = await response.json()
-      
-      sessionStorage.setItem( // Corregir aquí
-        CATEGORIES_CACHE_KEY, 
+
+      const response = await fetch(
+        "http://localhost:8080/category/showall_categories"
+      );
+      if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+      const newData = await response.json();
+
+      sessionStorage.setItem(
+        // Corregir aquí
+        CATEGORIES_CACHE_KEY,
         JSON.stringify({ data: newData, timestamp: Date.now() })
-      ) // <-- Añadir este paréntesis de cierre
-      
-      setCategoriesList(newData)
+      ); // <-- Añadir este paréntesis de cierre
+
+      setCategoriesList(newData);
     } catch (err) {
-      setCategoriesError(err instanceof Error ? err.message : "Error al cargar categorías")
+      setCategoriesError(
+        err instanceof Error ? err.message : "Error al cargar categorías"
+      );
     } finally {
-      setCategoriesLoading(false)
+      setCategoriesLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    if (showCategoriesModal) loadCategories()
-  }, [showCategoriesModal])
+    if (showCategoriesModal) loadCategories();
+  }, [showCategoriesModal]);
 
   // Filtrar productos
   useEffect(() => {
     setFilteredProducts(
-      selectedCategory === "Todas" 
-        ? products 
-        : products.filter(product => product.category.name === selectedCategory)
-    )
-  }, [selectedCategory, products])
+      selectedCategory === "Todas"
+        ? products
+        : products.filter(
+            (product) => product.category.name === selectedCategory
+          )
+    );
+  }, [selectedCategory, products]);
 
   const selectCategories = [
     "Todas",
-    ...Array.from(new Set([
-      ...products.map(p => p.category.name),
-      ...categoriesList.map(c => c.name)
-    ]))
-  ]
+    ...Array.from(
+      new Set([
+        ...products.map((p) => p.category.name),
+        ...categoriesList.map((c) => c.name),
+      ])
+    ),
+  ];
 
   // Crear producto
   const handleCreateProduct = async (productData: any) => {
     try {
-      setCreateProductLoading(true)
-      setCreateProductError("")
-  
-      const userAdminId = sessionStorage.getItem("userAdminId")
-      if (!userAdminId) throw new Error("No se encontró ID de administrador")
-  
-      const response = await fetch("http://localhost:8080/product/createproduct", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "UserAdminId": userAdminId
-        },
-        body: JSON.stringify({
-          name: productData.name,
-          description: productData.description,
-          price: productData.price,
-          quantity: productData.quantity,
-          imageBase64: productData.imageBase64,
-          categoryId: productData.categoryId
-        }),
-      })
-  
+      setCreateProductLoading(true);
+      setCreateProductError("");
+
+      const userAdminId = sessionStorage.getItem("userAdminId");
+      if (!userAdminId) throw new Error("No se encontró ID de administrador");
+
+      const response = await fetch(
+        "http://localhost:8080/product/createproduct",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            UserAdminId: userAdminId,
+          },
+          body: JSON.stringify({
+            name: productData.name,
+            description: productData.description,
+            price: productData.price,
+            quantity: productData.quantity,
+            imageBase64: productData.imageBase64,
+            categoryId: productData.categoryId,
+          }),
+        }
+      );
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Error al crear producto")
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error al crear producto");
       }
-  
-      const newProduct = await response.json()
-      setProducts(prev => [...prev, newProduct])
-      setShowProductModal(false)
+
+      const newProduct = await response.json();
+      setProducts((prev) => [...prev, newProduct]);
+      setShowProductModal(false);
     } catch (err) {
-      setCreateProductError(err instanceof Error ? err.message : "Error desconocido")
+      setCreateProductError(
+        err instanceof Error ? err.message : "Error desconocido"
+      );
     } finally {
-      setCreateProductLoading(false)
+      setCreateProductLoading(false);
     }
-  }
+  };
 
   // Actualizar producto
   const handleUpdateProduct = async (productData: any) => {
     try {
-      setUpdateProductLoading(true)
-      setUpdateProductError("")
-      
-      const userAdminId = sessionStorage.getItem("userAdminId")
-      if (!userAdminId || !editingProduct) throw new Error("Datos incompletos")
+      setUpdateProductLoading(true);
+      setUpdateProductError("");
 
-      const response = await fetch(`http://localhost:8080/product/updateproduct/${editingProduct.productId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "UserAdminId": userAdminId
-        },
-        body: JSON.stringify(productData)
-      })
+      const userAdminId = sessionStorage.getItem("userAdminId");
+      if (!userAdminId || !editingProduct) throw new Error("Datos incompletos");
+
+      const response = await fetch(
+        `http://localhost:8080/product/update_product/${editingProduct.productId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            UserAdminId: userAdminId,
+          },
+          body: JSON.stringify(productData),
+        }
+      );
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Error al actualizar producto")
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error al actualizar producto");
       }
 
-      const updatedProduct = await response.json()
-      setProducts(prev => prev.map(p => 
-        p.productId === updatedProduct.productId ? updatedProduct : p
-      ))
-      setShowEditModal(false)
+      const updatedProduct = await response.json();
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.productId === updatedProduct.productId ? updatedProduct : p
+        )
+      );
+      setShowEditModal(false);
     } catch (err) {
-      setUpdateProductError(err instanceof Error ? err.message : "Error desconocido")
+      setUpdateProductError(
+        err instanceof Error ? err.message : "Error desconocido"
+      );
     } finally {
-      setUpdateProductLoading(false)
+      setUpdateProductLoading(false);
     }
-  }
+  };
 
   // Obtener categorías cacheadas
   const cachedCategories = useMemo(() => {
-    const cachedData = sessionStorage.getItem(CATEGORIES_CACHE_KEY)
-    return cachedData ? JSON.parse(cachedData).data : []
-  }, [])
+    const cachedData = sessionStorage.getItem(CATEGORIES_CACHE_KEY);
+    return cachedData ? JSON.parse(cachedData).data : [];
+  }, []);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -249,7 +276,9 @@ export default function Dashboard() {
               </div>
             ) : (
               <>
-                <p className="font-medium">{adminProfile?.fullName || "Administrador"}</p>
+                <p className="font-medium">
+                  {adminProfile?.fullName || "Administrador"}
+                </p>
                 <p className="text-sm text-gray-500 break-all">
                   {adminProfile?.email || "admin@example.com"}
                 </p>
@@ -281,13 +310,13 @@ export default function Dashboard() {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
-                {filteredProducts.map(product => (
-                  <ProductCard 
-                    key={product.productId} 
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.productId}
                     product={product}
                     onEdit={() => {
-                      setEditingProduct(product)
-                      setShowEditModal(true)
+                      setEditingProduct(product);
+                      setShowEditModal(true);
                     }}
                   />
                 ))}
@@ -302,5 +331,5 @@ export default function Dashboard() {
         </main>
       </div>
     </div>
-  )
+  );
 }
