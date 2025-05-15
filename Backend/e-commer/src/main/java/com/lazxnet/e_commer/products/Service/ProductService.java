@@ -39,6 +39,11 @@ public class ProductService {
     //Crear productos
     public Product createProduct(ProductRequest productRequest, UUID userAdminId) {
 
+        if (productRepository.existsByName(productRequest.getName().trim())) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT, "El producto ya existe");
+        }
+
         //Validar categoria
         Category category = categoryRepository.findById(productRequest
                 .getCategoryId())
