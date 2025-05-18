@@ -18,8 +18,7 @@ public class ImageProduct {
     @Type(type = "uuid-char")
     private UUID imageProductId;
 
-    @Lob
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "LONGTEXT", nullable = false)
     private String imageBase64;
 
 }

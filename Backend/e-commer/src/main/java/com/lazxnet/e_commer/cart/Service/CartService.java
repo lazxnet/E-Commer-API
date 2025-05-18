@@ -1,5 +1,6 @@
 package com.lazxnet.e_commer.cart.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,6 +68,10 @@ public class CartService {
         itemResponse.setItemId(item.getItemId());
         itemResponse.setProduct(mapProductToResponse(item.getProduct()));
         itemResponse.setQuantity(item.getQuantity());
+        
+        BigDecimal total = item.getProduct().getPrice()
+                            .multiply(BigDecimal.valueOf(item.getQuantity()));
+        itemResponse.setTotalAmountProduct(total.intValue());
         return itemResponse;
     }
     

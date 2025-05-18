@@ -9,4 +9,5 @@ public class CartItemResponse {
     private UUID itemId;
     private ProductClientResponse product;
     private int quantity;
+    private int totalAmountProduct;
 }

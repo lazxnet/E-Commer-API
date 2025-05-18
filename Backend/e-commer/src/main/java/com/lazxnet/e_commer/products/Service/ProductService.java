@@ -39,6 +39,11 @@ public class ProductService {
     //Crear productos
     public Product createProduct(ProductRequest productRequest, UUID userAdminId) {
 
+        if (productRepository.existsByName(productRequest.getName().trim())) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT, "El producto ya existe");
+        }
+
         //Validar categoria
         Category category = categoryRepository.findById(productRequest
                 .getCategoryId())
@@ -105,7 +110,6 @@ public class ProductService {
             imageProductRepository.save(imageProduct);
         }
 
-        //TODO: Buscar la nueva categoria(Si se decea actualizarla)
         Category category = categoryRepository.findById(productRequest.getCategoryId())
                 .orElseThrow(()-> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -123,7 +127,6 @@ public class ProductService {
         return convertToResponse(updatedProduct);
     }
 
-    //TODO: Metodo para convertir Product a ProductResponse
     public ProductResponse convertToResponse(Product product){
         ProductResponse response = new ProductResponse();
         response.setProductId(product.getProductId());
