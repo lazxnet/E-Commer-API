@@ -6,7 +6,7 @@
 ![React](https://img.shields.io/badge/React-18-blue)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-orange)
 
-Plataforma de comercio electrónico minimalista con backend en Spring Boot (Java 17), frontend React y MySQL. Enfoque en simplicidad y gestión centralizada del carrito.
+Plataforma de comercio electrónico minimalista con backend en Spring Boot (Java 11), frontend React y MySQL. Enfoque en simplicidad y gestión centralizada del carrito.
 
 ## 🚀 Características principales  
 
