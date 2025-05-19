@@ -1,11 +1,11 @@
 # 🛒 Shopplyn  
 **E-Commerce Essentials | Spring Boot + React + MySQL**  
-![License](https://img.shields.io/badge/License-MIT-blue) 
-![GitHub issues](https://img.shields.io/github/issues/lazxnet/shopplyn) 
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-2.7.0)
-![React](https://img.shields.io/badge/React-19)
-![Vite](https://img.shields.io/badge/Vite-4.5.13)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-orange)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![GitHub issues](https://img.shields.io/github/issues/lazxnet/shopplyn.svg)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-2.7.0-green.svg)
+![React](https://img.shields.io/badge/React-18.x-blue.svg)
+![Vite](https://img.shields.io/badge/Vite-4.5.13-yellow.svg)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-orange.svg)
 
 Plataforma de comercio electrónico minimalista con backend en Spring Boot (Java 11), frontend React y MySQL. Enfoque en simplicidad y gestión centralizada del carrito.
 
