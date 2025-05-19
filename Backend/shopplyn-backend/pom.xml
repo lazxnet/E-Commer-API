@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.lazxnet</groupId>
-	<artifactId>e-commer</artifactId>
+	<artifactId>shopplyn-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>shopplyn-backend</name>
 	<description>Backend de Shopplyn</description>
