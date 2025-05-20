@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import LoginForm from './windows/auth/login-form';
-import Dashboard from './windows/dashboard/dashboard';
+import LoginForm from './pages/auth/login-form';
+import Dashboard from './pages/dashboard/dashboard';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
