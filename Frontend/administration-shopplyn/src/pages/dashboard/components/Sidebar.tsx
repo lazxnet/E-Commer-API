@@ -31,7 +31,7 @@ export default function Sidebar({
                         hover:bg-blue-50 transition-all duration-200 group">
             <label
               htmlFor="category-select"
-              className="block text-xs text-gray-500/90 mb-1"
+              className="block text-xs text-gray-500/90 mb-1 group-hover:text-blue-600 transition-colors"
             >
               Filtrar por categoría
             </label>
@@ -71,11 +71,11 @@ export default function Sidebar({
             </button>
 
             <button
-              className="w-full flex items-center gap-3 p-3 text-gray-600 hover:text-purple-600 font-medium rounded-xl 
-                        hover:bg-purple-50 transition-all duration-200 group"
+              className="w-full flex items-center gap-3 p-3 text-gray-600 hover:text-blue-600 font-medium rounded-xl 
+              hover:bg-blue-50 transition-all duration-200 group"
               onClick={() => setShowCategoriesModal(true)}
             >
-              <FiFolder className="text-xl text-purple-500 group-hover:text-purple-600 transition-colors" />
+              <FiFolder className="ext-xl text-blue-500 group-hover:text-blue-600 transition-colors" />
               <span className="text-sm">Categorías</span>
             </button>
           </div>
