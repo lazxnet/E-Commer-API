@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiAlertCircle, FiLock, FiMail } from "react-icons/fi";
@@ -12,23 +12,26 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const login = useCallback (async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const body = {
+     email: urlParams.get('email'),   
+     password: urlParams.get('password'), 
+    };
     try {
-      const response = await fetch(
-        "http://localhost:8080/useradmin/loginAdminUser",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-          signal: AbortSignal.timeout(500000000),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_BI_URL}`, {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        signal: AbortSignal.timeout(5000),
+      });
 
       if (!response.ok) {
         try {
@@ -43,12 +46,10 @@ export default function LoginForm() {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
       }
-
-      // Redirección después de éxito
       const data = await response.json();
       sessionStorage.setItem("userAdminId", data.userAdminId);
       window.dispatchEvent(new Event("storage"));
-      navigate("/dashboard"); // Aquí la redirección
+      navigate("/dashboard");
     } catch (err) {
       let errorMessage = "Error crítico. Contacta al soporte técnico.";
 
@@ -70,7 +71,7 @@ export default function LoginForm() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [email, password, navigate]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row backdrop-blur-sm">
@@ -92,7 +93,7 @@ export default function LoginForm() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={login} className="space-y-6">
             <div className="space-y-4">
               <div>
                 <label

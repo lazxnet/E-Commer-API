@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react"
 import { Category } from "./types"
 import CreateCategoryForm from "./CreateCategoryForm"
-import { ApiService } from "../service/api.service"
+import { ApiService } from "../infrastructure";
 
 const CATEGORIES_CACHE_KEY = "cached_categories"
 

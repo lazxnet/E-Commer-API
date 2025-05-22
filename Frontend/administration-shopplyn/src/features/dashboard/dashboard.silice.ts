@@ -1,14 +1,14 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import { Product, AdminProfile, Category } from "./components/types";
-import CategoryModal from "./components/CategoryModal";
-import ProductModal from "./components/ProductModal";
-import EditProductModal from "./components/EditProductModal";
-import Sidebar from "./components/Sidebar";
-import ProductCard from "./components/ProductCard";
-import { ApiService } from "./service/api.service";
+import { Product, AdminProfile, Category,  } from "./domain";
+import CategoryModal from "./application/CategoryModal";
+import ProductModal from "./application/ProductModal";
+import EditProductModal from "./application/EditProductModal";
+import Sidebar from "./application/Sidebar";
+import ProductCard from "./application/ProductCard";
+import { ApiService } from "./infrastructure";
 
-export default function Dashboard() {
+export default function dashboardSlice() {
   // Estados
   const [selectedCategory, setSelectedCategory] = useState<string>("Todas");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
