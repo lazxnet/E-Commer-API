@@ -20,5 +20,4 @@ public class ImageProduct {
 
     @Column(columnDefinition = "LONGTEXT", nullable = false)
     private String imageBase64;
-
 }
