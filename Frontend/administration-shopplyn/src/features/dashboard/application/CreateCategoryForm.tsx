@@ -19,8 +19,7 @@ export const CreateCategory: React.FC<CategoryProps> = ({ fetchData, value }) =>
     e.preventDefault();
     setLoading(true);
     try {
-      const data = { name: inputValue, description, categoryId: "" };
-      await postDashboard(data);
+      await postDashboard(inputValue, description);
       fetchData();
       handleClose();
     } catch (error) {

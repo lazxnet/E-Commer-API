@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Category } from "../domain";
 
-const URL = `${import.meta.env.VITE_API_URL}/`;
+const URL = `${import.meta.env.VITE_API_URL}/category`;
 
 
 const dashboardService = axios.create({
@@ -10,11 +10,15 @@ const dashboardService = axios.create({
 })
 
 
-export const postDashboard = async (data: Category): Promise<any> => {
+export const postDashboard = async (name: string, description: string): Promise<Category[]> => {
     try {
-        const response = await dashboardService.post<any>("/category", {
-            data,
+        const response = await dashboardService.post<any>("/create_category", {
+           params:{
+            name,
+            description
+           } 
         })
+        console.log("Categoria creada", response.data);
         return response.data;
     } catch (error) {
         console.error("Error al mostrar las categorias", error);
@@ -26,14 +30,15 @@ export const postDashboard = async (data: Category): Promise<any> => {
 
 export const deleteDashboard = async (categoryId: string): Promise<any> => {
     try {
-        const response = await dashboardService.delete<any>('', {
+        const response = await dashboardService.delete<any>(`/delete_category/${categoryId}`, {
             params: {
                 categoryId: categoryId
             },
         })
+        console.log("Categoria eliminada", response.data)
         return response.data;
     } catch (error) {
-        console.error("Error al elimiar", error)
+        console.error("Error al eliminar", error)
     } finally {
         console.info("Categoria eliminada")
     }
