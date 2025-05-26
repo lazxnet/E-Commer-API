@@ -24,8 +24,10 @@ export interface Category {
     categoryId: string
     name: string
     description: string
-    userAdmin: {
-        email: string
-        fullName: string
-    }
 }
+
+export interface User {
+    email: string
+    fullName: string
+}
+
