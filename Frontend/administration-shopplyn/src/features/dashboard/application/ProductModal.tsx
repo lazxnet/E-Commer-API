@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from "react"
-import { Category } from "./types"
+import { Category } from "./../domain"
 import { FiX, FiUploadCloud, FiAlertCircle } from "react-icons/fi"
 
 export default function ProductModal({

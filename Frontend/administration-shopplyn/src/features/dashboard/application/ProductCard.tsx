@@ -1,6 +1,6 @@
 "use client"
 import React from "react"
-import { Product } from "./types"
+import { Product } from "./../domain"
 import { FiEdit, FiTrash2 } from "react-icons/fi"
 
 export default function ProductCard({ 

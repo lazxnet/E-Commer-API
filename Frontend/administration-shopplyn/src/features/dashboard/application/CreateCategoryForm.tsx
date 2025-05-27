@@ -1,5 +1,5 @@
 import React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { postDashboard } from './../infrastructure/get.dashboard.service'
 
 interface CategoryProps {
@@ -30,6 +30,10 @@ export const CreateCategory: React.FC<CategoryProps> = ({ fetchData, value }) =>
     }
   }
 
+  useEffect(() => {
+    setInputValue(value);
+  }, [value])
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
   }
@@ -40,8 +44,8 @@ export const CreateCategory: React.FC<CategoryProps> = ({ fetchData, value }) =>
   return (
     <>
       {visible && (
-        <> 
-        <h2 className="text-lg font-semibold">Crear Categoría</h2>
+        <>
+          <h2 className="text-lg font-semibold">Crear Categoría</h2>
           {error && <div className="text-red-500">{error}</div>}
           <form onSubmit={handleSave}>
             <div>
@@ -80,7 +84,7 @@ export const CreateCategory: React.FC<CategoryProps> = ({ fetchData, value }) =>
                 {loading ? "Creando..." : "Crear categoría"}
               </button>
             </div>
-          </form> 
+          </form>
         </>
       )}
     </>
