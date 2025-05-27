@@ -1,101 +1,58 @@
-"use client"
-import React, { useState, useEffect } from "react"
-import { Category } from "./types"
-import CreateCategoryForm from "./CreateCategoryForm"
-import { ApiService } from "../service/api.service"
+import React from 'react';
+import { useState } from "react"
+import { deleteDashboard } from './../infrastructure/get.dashboard.service'
+import { Category,  } from '../domain';
 
-const CATEGORIES_CACHE_KEY = "cached_categories"
+interface DeleteCategoryProps {
+  error: string;
+  categoriesList: Category[];
+  fetchData: () => Promise<void>;
+  categoryId: string;
+}
 
-export default function CategoryModal({
-  show,
-  onClose,
-  categoriesList,
-  loading,
-  error,
-  loadCategories
-}: {
-  show: boolean
-  onClose: () => void
-  categoriesList: Category[]
-  loading: boolean
-  error: string
-  loadCategories: () => Promise<void>
-}) {
-  const [deletingId, setDeletingId] = useState<string | null>(null)
-  const [deleteError, setDeleteError] = useState("")
-  const [showCreateForm, setShowCreateForm] = useState(false)
+export const CategoryModal: React.FC<DeleteCategoryProps> = ({ categoryId, fetchData, categoriesList, error }) => {
+  const [showForm, setShowForm] = useState(false);
+  const [deleteError, setDeleteError] = useState<string>("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [visible, setVisible] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (show) loadCategories()
-  }, [show])
-
-  const handleDelete = async (categoryId: string) => {
+  const handleClose = () => setVisible(false);
+  const handleDelete = async () => {
+    setLoading(true);
     try {
-      setDeleteError("")
-      setDeletingId(categoryId)
-      
-      const userAdminId = sessionStorage.getItem("userAdminId")
-      if (!userAdminId) throw new Error("Acceso no autorizado")
-  
-      await ApiService.deleteCategory(userAdminId, categoryId)
-  
-      sessionStorage.removeItem(CATEGORIES_CACHE_KEY)
-      await loadCategories()
-    } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : "Error en el servidor")
+      setDeleteError("");
+      setDeletingId(categoryId);
+      await deleteDashboard(categoryId);
+      await fetchData();
+      handleClose();
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : "Error en el servidor");
     } finally {
-      setDeletingId(null)
+      setLoading(false);
     }
-  }
-
-  const handleCreateSuccess = async () => {
-    sessionStorage.removeItem(CATEGORIES_CACHE_KEY)
-    await loadCategories()
-    setShowCreateForm(false)
-  }
-
-  if (!show) return null
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity duration-300">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden transform transition-all duration-300">
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex justify-between items-center p-6 border-b">
-            <h3 className="text-2xl font-bold text-gray-800">
-              {showCreateForm ? "Crear Nueva Categoría" : "Gestión de Categorías"}
-            </h3>
-            <div className="flex items-center gap-3">
-              {!showCreateForm && (
-                <button
-                  onClick={() => setShowCreateForm(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                  </svg>
-                  Nueva Categoría
-                </button>
-              )}
-              <button 
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100"
-                aria-label="Cerrar modal"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Contenido */}
+    <>
+      {visible && (
+        <>
           <div className="flex-1 overflow-y-auto p-6">
-            {showCreateForm ? (
-              <CreateCategoryForm
-                onCancel={() => setShowCreateForm(false)}
-                onCreateSuccess={handleCreateSuccess}
-              />
+            <button
+              className="mb-4 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition"
+              onClick={() => setShowForm(true)}
+            >
+              Abrir formulario
+            </button>
+            {showForm ? (
+              <div>
+                <button
+                  className="mt-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition"
+                  onClick={() => setShowForm(true)}
+                >
+                  Cerrar formulario
+                </button>
+              </div>
             ) : (
               <>
                 {deleteError && (
@@ -106,7 +63,6 @@ export default function CategoryModal({
                     <span>{deleteError}</span>
                   </div>
                 )}
-
                 {loading ? (
                   <div className="flex flex-col items-center justify-center py-8">
                     <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
@@ -136,7 +92,7 @@ export default function CategoryModal({
                       >
                         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => handleDelete(category.categoryId)}
+                            onClick={handleDelete}
                             disabled={deletingId === category.categoryId}
                             className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed p-1.5 rounded-md hover:bg-red-50 transition-colors"
                             aria-label="Eliminar categoría"
@@ -149,11 +105,10 @@ export default function CategoryModal({
                             ) : (
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                              </svg>
+                            </svg>
                             )}
                           </button>
                         </div>
-
                         <div className="flex items-start gap-4">
                           <div className="bg-blue-100 text-blue-600 rounded-lg p-3">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -168,14 +123,14 @@ export default function CategoryModal({
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                                 </svg>
-                                <span>{category.userAdmin.fullName}</span>
+                                <span>{category.delete.fullName}</span>
                               </p>
                               <p className="flex items-center gap-2 mt-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                                 </svg>
-                                <span>{category.userAdmin.email}</span>
+                                <span>{category.delete.email}</span>
                               </p>
                             </div>
                           </div>
@@ -187,8 +142,11 @@ export default function CategoryModal({
               </>
             )}
           </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+        </>
+      )}
+    </>
+  );
+};
+export default CategoryModal;
+
+

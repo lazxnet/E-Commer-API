@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from "react"
-import { Category, Product } from "./types"
+import { Category, Product } from "./../domain"
 
 export default function EditProductModal({
   show,

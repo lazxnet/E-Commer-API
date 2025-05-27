@@ -5,7 +5,6 @@ import {
   FiPlusCircle,
   FiFolder,
   FiLogOut,
-  FiChevronDown,
 } from "react-icons/fi";
 
 export default function Sidebar({

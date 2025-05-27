@@ -1,8 +1,8 @@
-import { AdminProfile, Category, Product } from "../components/types";
+import { AdminProfile, Category, Product } from "./../domain";
 
 // services/api.service.ts
 const CATEGORIES_CACHE_KEY = "cached_categories";
-const CACHE_EXPIRATION = 3600000; // 1 hora en milisegundos
+const CACHE_EXPIRATION = 3600000; // 1 hora en milisegundoss
 
 //Cargar perfiles de usuarios
 export class ApiService {
