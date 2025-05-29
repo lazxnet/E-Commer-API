@@ -68,10 +68,6 @@ public class CartService {
         itemResponse.setItemId(item.getItemId());
         itemResponse.setProduct(mapProductToResponse(item.getProduct()));
         itemResponse.setQuantity(item.getQuantity());
-        
-        BigDecimal total = item.getProduct().getPrice()
-                            .multiply(BigDecimal.valueOf(item.getQuantity()));
-        itemResponse.setTotalAmountProduct(total.intValue());
         return itemResponse;
     }
     
