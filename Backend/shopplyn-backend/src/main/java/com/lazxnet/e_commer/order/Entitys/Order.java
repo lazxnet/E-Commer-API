@@ -6,12 +6,15 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.Table;
+
 import org.hibernate.annotations.*;
 import com.lazxnet.e_commer.userClient.Entitys.UserClient;
 import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "orders")
 public class Order {
     
     public enum OrderStatus {

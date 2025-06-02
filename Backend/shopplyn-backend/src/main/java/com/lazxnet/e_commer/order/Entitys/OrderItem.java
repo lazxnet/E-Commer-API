@@ -1,5 +1,6 @@
 package com.lazxnet.e_commer.order.Entitys;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import javax.persistence.*;
@@ -29,5 +30,5 @@ public class OrderItem {
     private Product product;
 
     private int quantity;
-    private Double priceAtPurchase;
+    private BigDecimal priceAtPurchase;
 }
