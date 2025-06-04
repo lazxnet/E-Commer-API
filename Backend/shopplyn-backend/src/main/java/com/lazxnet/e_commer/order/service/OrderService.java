@@ -10,6 +10,7 @@ import com.lazxnet.e_commer.order.Entitys.Order;
 import com.lazxnet.e_commer.order.Entitys.OrderItem;
 import com.lazxnet.e_commer.order.Repository.OrderRepository;
 import com.lazxnet.e_commer.products.Entity.Product;
+import com.lazxnet.e_commer.products.Repository.ProductRepository;
 import com.lazxnet.e_commer.products.dto.ImageProductResponse;
 import com.lazxnet.e_commer.products.dto.ProductClientResponse;
 import com.lazxnet.e_commer.userClient.Entitys.UserClient;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -32,14 +34,21 @@ public class OrderService {
     private UserClientRepository userClientRepository;
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, UserClientRepository userClientRepository, CartRepository cartRepository){
+    public OrderService(OrderRepository orderRepository,
+                        UserClientRepository userClientRepository,
+                        CartRepository cartRepository,
+                        ProductRepository productRepository){
         this.orderRepository = orderRepository;
         this.userClientRepository = userClientRepository;
         this.cartRepository = cartRepository;
+        this.productRepository = productRepository;
     }
 
+    @Transactional
     public OrderResponse createOrder(CreateOrderRequest request){
 
         UserClient user = userClientRepository.findById(request.getUserClientId())
@@ -59,6 +68,17 @@ public class OrderService {
         order.setTotalAmount(BigDecimal.ZERO);
 
         for (CartItem cartItem : cart.getItems()){
+
+            if (cartItem.getProduct().getQuantity() < cartItem.getQuantity()){
+                throw new RuntimeException(
+                        "Stock insuficiente para " + cartItem.getProduct().getName()
+                );
+            }
+
+            Product product = cartItem.getProduct();
+            product.setQuantity(product.getQuantity() - cartItem.getQuantity());
+            productRepository.save(product);
+
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(cartItem.getProduct());
