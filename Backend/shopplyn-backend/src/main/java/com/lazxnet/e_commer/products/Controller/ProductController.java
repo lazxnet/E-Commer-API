@@ -32,7 +32,7 @@ public class ProductController {
                     required = true
             )
     )
-    @PostMapping("/createproduct")
+    @PostMapping()
     public ResponseEntity<ProductResponse> createProduct(
             @RequestBody ProductRequest productRequest,
             @RequestHeader("UserAdminId") UUID userAdminId
@@ -47,7 +47,7 @@ public class ProductController {
             summary = "Obtener todos los productos (Todos)",
             description = "Endpoint para obtener todos los productos"
     )
-    @GetMapping("/showallproducts")
+    @GetMapping()
     public List<ProductResponse> getAllProducts(){
         return productService.getAllProducts();
     }
@@ -57,7 +57,7 @@ public class ProductController {
             summary = "Actualizar producto por ID (Solo administradores)",
             description = "Endpoint para editar un producto"
     )
-    @PutMapping("/update_product/{productId}")
+    @PutMapping("/{productId}")
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable UUID productId,
             @RequestBody ProductRequest productRequest,
@@ -84,7 +84,7 @@ public class ProductController {
         summary = "Eliminar un producto",
         description = "Endpoint para eliminar un producto por id"
     )
-    @DeleteMapping("/delete_product/{productId}")
+    @DeleteMapping("/{productId}")
     public ResponseEntity<String> deleteProduct(
         @PathVariable UUID productId,
         @RequestHeader("UserAdminId") UUID userAdminId
