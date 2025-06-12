@@ -1,4 +1,4 @@
-# 🛒 Shopplyn  
+# 🛒 E-Commerse-Project 
 **E-Commerce Essentials | Spring Boot + React + MySQL**  
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![GitHub issues](https://img.shields.io/github/issues/lazxnet/shopplyn.svg)
