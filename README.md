@@ -32,10 +32,4 @@ Plataforma de comercio electrónico minimalista con backend en Spring Boot (Java
 - Java 11+ 
 - Node.js 17+  
 - MySQL 8.0+  
-- Maven 3.9+  
-
-### Pasos para configuración  
-1. Clona el repositorio:  
-```bash 
-git clone https://github.com/lazxnet/shopplyn.git 
-cd shopplyn 
+- Maven 3.9+   
